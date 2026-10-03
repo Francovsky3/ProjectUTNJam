@@ -23,6 +23,7 @@ public class Apilable : MonoBehaviour
             {
                 isGrounded = false;
                 rb.isKinematic = true;
+                Debug.Log("pare");
             }
         }
     }
@@ -44,7 +45,6 @@ public class Apilable : MonoBehaviour
 
             if (collision.gameObject.CompareTag("Apilable"))
             {
-                Debug.Log("cai sobre un objeto" + collision.gameObject.GetComponent<Apilable>().GetGrounded());
                 if (collision.gameObject.GetComponent<Apilable>().GetGrounded())
                 {
                     isGrounded = true;
