@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9f74b732cb55a5bbea6a63139babb3ef
+guid: 8eb06839e56b6d40c9fef4f6280598c5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6721668925974682558
-    second: Lampara de vegeta_0
+      213: 6242528533265953460
+    second: lampara_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 500
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Lampara de vegeta_0
+      name: lampara_0
       rect:
         serializedVersion: 2
-        x: 10
-        y: 14
-        width: 41
-        height: 41
+        x: 132
+        y: 100
+        width: 217
+        height: 254
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ebb9086764a284d50800000000000000
-      internalID: 6721668925974682558
+      spriteID: 4b2be8d60aae1a650800000000000000
+      internalID: 6242528533265953460
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      Lampara de vegeta_0: 6721668925974682558
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

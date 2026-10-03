@@ -1,5 +1,58 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4991049455323758236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2578110970002990533}
+  - component: {fileID: 4357883849930844396}
+  m_Layer: 0
+  m_Name: col1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2578110970002990533
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4991049455323758236}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: 0.08570892, w: 0.99632025}
+  m_LocalPosition: {x: 0.19898467, y: 0.0025648237, z: 0}
+  m_LocalScale: {x: 1.0000001, y: 1.0000001, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7196688965057710336}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &4357883849930844396
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4991049455323758236}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.25079924, y: 0.22700354, z: 1}
+  m_Center: {x: -0.32779768, y: 0.24256413, z: 0}
 --- !u!1 &6103081773231622144
 GameObject:
   m_ObjectHideFlags: 0
@@ -11,9 +64,7 @@ GameObject:
   - component: {fileID: 7196688965057710336}
   - component: {fileID: 3629233927025711941}
   - component: {fileID: 4702636643374788941}
-  - component: {fileID: 6024739128691795604}
   - component: {fileID: 3909652095808678336}
-  - component: {fileID: -5440120295637739970}
   - component: {fileID: 481516234200000005}
   m_Layer: 0
   m_Name: Caballo
@@ -34,7 +85,8 @@ Transform:
   m_LocalPosition: {x: 0.000030767173, y: -0.0011131333, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2578110970002990533}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -9.834}
 --- !u!54 &3629233927025711941
@@ -113,30 +165,16 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 4373100243113654579, guid: db898188a14e175678c6b45dfb9170e8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d08ddefccb4a59fc28307152e7da1925, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.64, y: 0.44}
+  m_Size: {x: 5, y: 5}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &6024739128691795604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6103081773231622144}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac2592a2b763aba0f8eee4aa529c461f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Apilable
-  timerMax: 3
-  isGrounded: 0
 --- !u!136 &3909652095808678336
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -156,22 +194,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.3396747
-  m_Height: 1.1243043
+  m_Radius: 0.17854358
+  m_Height: 0.69549453
   m_Direction: 0
-  m_Center: {x: 0.0445773, y: 0.032782674, z: 0}
---- !u!114 &-5440120295637739970
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6103081773231622144}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a04336569eef5f6881690a74ce69a77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Drag
+  m_Center: {x: -0.0071065724, y: -0.07539524, z: 0}
 --- !u!114 &481516234200000005
 MonoBehaviour:
   m_ObjectHideFlags: 0

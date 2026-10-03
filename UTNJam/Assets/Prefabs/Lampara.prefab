@@ -1,5 +1,58 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &14459944169531702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7450931731780228842}
+  - component: {fileID: 8125669986815919631}
+  m_Layer: 0
+  m_Name: col2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7450931731780228842
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 14459944169531702}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.04827, y: -0.07886, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6899941127197125540}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8125669986815919631
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 14459944169531702}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.2740131, y: 0.078369915, z: 1}
+  m_Center: {x: 0.040998265, y: -0.1734201, z: 0}
 --- !u!1 &4984116747485741194
 GameObject:
   m_ObjectHideFlags: 0
@@ -51,8 +104,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.2680843, y: 0.33845544, z: 1}
-  m_Center: {x: -0.01900506, y: -0.12438071, z: 0}
+  m_Size: {x: 0.06116022, y: 0.14814705, z: 1}
+  m_Center: {x: -0.015827678, y: -0.18515357, z: 0}
 --- !u!1 &6500864891936219500
 GameObject:
   m_ObjectHideFlags: 0
@@ -64,9 +117,7 @@ GameObject:
   - component: {fileID: 6899941127197125540}
   - component: {fileID: 3949702371860041494}
   - component: {fileID: 2932183379007215558}
-  - component: {fileID: 2120739697845238931}
   - component: {fileID: -8718054320502459996}
-  - component: {fileID: 2222762484941609756}
   - component: {fileID: 481516234200000004}
   m_Layer: 0
   m_Name: Lampara
@@ -89,6 +140,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9029540122851827502}
+  - {fileID: 7450931731780228842}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &3949702371860041494
@@ -110,8 +162,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.5933918, y: 0.29131603, z: 1}
-  m_Center: {x: -0.0009137541, y: 0.1799705, z: 0}
+  m_Size: {x: 0.42752445, y: 0.3272414, z: 1}
+  m_Center: {x: -0.021982871, y: 0.04632096, z: 0}
 --- !u!212 &2932183379007215558
 SpriteRenderer:
   serializedVersion: 2
@@ -161,30 +213,16 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 6721668925974682558, guid: 9f74b732cb55a5bbea6a63139babb3ef, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8eb06839e56b6d40c9fef4f6280598c5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.640625, y: 0.640625}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &2120739697845238931
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6500864891936219500}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac2592a2b763aba0f8eee4aa529c461f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Apilable
-  timerMax: 3
-  isGrounded: 0
 --- !u!54 &-8718054320502459996
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -212,18 +250,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 48
   m_CollisionDetection: 0
---- !u!114 &2222762484941609756
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6500864891936219500}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a04336569eef5f6881690a74ce69a77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Drag
 --- !u!114 &481516234200000004
 MonoBehaviour:
   m_ObjectHideFlags: 0
