@@ -122,6 +122,7 @@ public class MesaDeArmado : MonoBehaviour
         bool hayNuevos = false;
         foreach (GameObject p in prefabs)
         {
+            if (p == null) continue;   // entrada vacía o prefab borrado
             Objeto datos = p.GetComponent<Objeto>();
             if (datos != null && !datos.PuedeAparecer(gruposColocados)) continue;
             disponibles.Add(p);
@@ -131,7 +132,8 @@ public class MesaDeArmado : MonoBehaviour
         if (disponibles.Count == 0)
         {
             Debug.LogWarning($"MesaDeArmado: ningún objeto puede aparecer con {gruposColocados} grupos; uso todos.");
-            disponibles.AddRange(prefabs);
+            disponibles.AddRange(prefabs.FindAll(p => p != null));
+            if (disponibles.Count == 0) return false;
         }
 
         for (int i = 0; i < ocupantes.Length; i++)
