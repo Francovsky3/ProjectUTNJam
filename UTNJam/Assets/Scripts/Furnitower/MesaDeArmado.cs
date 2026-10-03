@@ -20,6 +20,8 @@ public class MesaDeArmado : MonoBehaviour
     [SerializeField] int maxPorGrupo = 3;
     [SerializeField] float margenContacto = 0.08f;
     [SerializeField] float pasoRotacion = 15f;
+    [Tooltip("Distancia máxima por paso al arrastrar: más chico = choques más precisos entre objetos")]
+    [SerializeField] float pasoArrastre = 0.05f;
 
     [Header("Fondo")]
     [Tooltip("Imagen de fondo de la pantalla de armado; se escala para ocupar todo el alto de la cámara")]
@@ -52,6 +54,8 @@ public class MesaDeArmado : MonoBehaviour
 
     Objeto agarrado;
     Vector3 offsetAgarre;
+    Vector3 ultimaPosValida;
+    bool arrastreValido;   // false mientras el objeto agarrado arranca encimado con otro
 
     public int MinPorGrupo => minPorGrupo;
     public int MaxPorGrupo => maxPorGrupo;
@@ -183,14 +187,8 @@ public class MesaDeArmado : MonoBehaviour
             if (kb.qKey.wasPressedThisFrame) giro += pasoRotacion;
             if (kb.eKey.wasPressedThisFrame) giro -= pasoRotacion;
         }
-        if (giro != 0f)
-        {
-            Quaternion q = Quaternion.Euler(0f, 0f, giro);
-            agarrado.transform.rotation = q * agarrado.transform.rotation;
-            offsetAgarre = q * offsetAgarre;
-        }
-
-        agarrado.transform.position = puntero + offsetAgarre;
+        if (giro != 0f) Rotar(giro);
+        MoverAgarrado(puntero + offsetAgarre);
 
         if (mouse.leftButton.wasReleasedThisFrame) Soltar();
         MostrarCentroDeMasa();
@@ -241,6 +239,102 @@ public class MesaDeArmado : MonoBehaviour
         grupo.Remove(o);
         o.Teñir(Color.white);
         o.AlFrente(true);
+
+        arrastreValido = !SuperponeAlGrupo();
+        ultimaPosValida = o.transform.position;
+    }
+
+    // ---------- Choques entre el objeto arrastrado y los del grupo ----------
+    // Los objetos de la mesa no tienen Rigidbody, así que el choque se resuelve a mano:
+    // se avanza en pasos chicos y, si el objeto se mete en otro, se lo empuja hacia afuera.
+
+    void MoverAgarrado(Vector3 objetivo)
+    {
+        objetivo.z = 0f;
+
+        // Si arrancó encimado (no debería pasar), se mueve libre hasta quedar en un lugar válido
+        if (!arrastreValido)
+        {
+            agarrado.transform.position = objetivo;
+            arrastreValido = !SuperponeAlGrupo();
+            ultimaPosValida = agarrado.transform.position;
+            return;
+        }
+
+        Vector3 delta = objetivo - agarrado.transform.position;
+        int pasos = Mathf.Clamp(Mathf.CeilToInt(delta.magnitude / pasoArrastre), 1, 80);
+        Vector3 paso = delta / pasos;
+        for (int i = 0; i < pasos; i++)
+        {
+            agarrado.transform.position += paso;
+            if (!SepararDelGrupo())
+            {
+                agarrado.transform.position = ultimaPosValida;
+                break;
+            }
+            ultimaPosValida = agarrado.transform.position;
+        }
+    }
+
+    void Rotar(float grados)
+    {
+        Quaternion q = Quaternion.Euler(0f, 0f, grados);
+        Quaternion rotacionAntes = agarrado.transform.rotation;
+        agarrado.transform.rotation = q * rotacionAntes;
+
+        // Si al girar se mete en otro objeto y no hay forma de sacarlo, no gira
+        if (arrastreValido && !SepararDelGrupo())
+        {
+            agarrado.transform.rotation = rotacionAntes;
+            agarrado.transform.position = ultimaPosValida;
+            return;
+        }
+        offsetAgarre = q * offsetAgarre;
+        ultimaPosValida = agarrado.transform.position;
+    }
+
+    // Empuja al objeto agarrado fuera de los objetos del grupo. Devuelve false si no pudo.
+    bool SepararDelGrupo()
+    {
+        for (int intento = 0; intento < 8; intento++)
+        {
+            bool choco = false;
+            foreach (Collider a in agarrado.Colliders)
+            {
+                foreach (Objeto otro in grupo)
+                {
+                    foreach (Collider b in otro.Colliders)
+                    {
+                        if (!Penetracion(a, b, out Vector3 direccion, out float distancia)) continue;
+
+                        // Si la salida más corta es en profundidad (Z), en 2D no tiene solución
+                        if (Mathf.Abs(direccion.z) > 0.7f) return false;
+                        direccion.z = 0f;
+                        agarrado.transform.position += direccion.normalized * (distancia + 0.002f);
+                        choco = true;
+                    }
+                }
+            }
+            if (!choco) return true;
+        }
+        return false;
+    }
+
+    bool SuperponeAlGrupo()
+    {
+        foreach (Collider a in agarrado.Colliders)
+            foreach (Objeto otro in grupo)
+                foreach (Collider b in otro.Colliders)
+                    if (Penetracion(a, b, out _, out float distancia) && distancia > 0.01f)
+                        return true;
+        return false;
+    }
+
+    static bool Penetracion(Collider a, Collider b, out Vector3 direccion, out float distancia)
+    {
+        Transform ta = a.transform, tb = b.transform;
+        return Physics.ComputePenetration(a, ta.position, ta.rotation, b, tb.position, tb.rotation,
+                                          out direccion, out distancia);
     }
 
     void Soltar()
@@ -248,6 +342,14 @@ public class MesaDeArmado : MonoBehaviour
         Objeto o = agarrado;
         agarrado = null;
         o.AlFrente(false);
+
+        if (!arrastreValido && DentroDeZona(o.transform.position))
+        {
+            VolverALugar(o);
+            juego.Avisar("No puede quedar adentro de otro objeto");
+            Reagrupar(null);
+            return;
+        }
 
         if (!DentroDeZona(o.transform.position))
         {
@@ -337,7 +439,7 @@ public class MesaDeArmado : MonoBehaviour
     {
         o.transform.SetParent(raiz, false);
         o.transform.localPosition = PosicionLugar(o.Lugar);
-        o.transform.localRotation = Quaternion.identity;
+        o.transform.localRotation = o.RotacionInicial;
 
         Vector3 destino = raiz.TransformPoint(PosicionLugar(o.Lugar));
         Bounds visual = o.LimitesVisuales();

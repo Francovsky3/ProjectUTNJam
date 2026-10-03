@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8405852449608592439}
   - component: {fileID: 1161828002708886393}
   - component: {fileID: 277215845184560834}
+  - component: {fileID: 481516234200000007}
   m_Layer: 0
   m_Name: Pelota
   m_TagString: Untagged
@@ -154,3 +155,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a04336569eef5f6881690a74ce69a77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Drag
+--- !u!114 &481516234200000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571058050139829404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60d97c78eb237ce4eb603b726a22ed49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Objeto
+  inestabilidad: 6
+  masa: 0.5
+  apareceDesdeGrupo: 2
+  dejaDeAparecerEnGrupo: 0

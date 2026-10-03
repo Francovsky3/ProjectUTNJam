@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1565669424805061419}
   - component: {fileID: 3574375692433752578}
   - component: {fileID: 7436151175963330734}
+  - component: {fileID: 481516234200000006}
   m_Layer: 0
   m_Name: Colchon
   m_TagString: Untagged
@@ -229,3 +230,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.036835466, y: 7.6408155e-17, z: -0.00000011920929}
+--- !u!114 &481516234200000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3168844686789771686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60d97c78eb237ce4eb603b726a22ed49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Objeto
+  inestabilidad: 1.5
+  masa: 1.5
+  apareceDesdeGrupo: 1
+  dejaDeAparecerEnGrupo: 0
