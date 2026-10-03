@@ -234,13 +234,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-<<<<<<< Updated upstream
-  m_AnchoredPosition: {x: 0, y: -961}
-  m_SizeDelta: {x: -84.112, y: -55.765}
-=======
   m_AnchoredPosition: {x: -4.4639893, y: -849}
   m_SizeDelta: {x: -122.027, y: -68.454}
->>>>>>> Stashed changes
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &119859391
 Animator:
@@ -252,11 +247,7 @@ Animator:
   m_GameObject: {fileID: 119859389}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-<<<<<<< Updated upstream
-  m_Controller: {fileID: 9100000, guid: 534645e7fe41424bf8dbb361605ec1b1, type: 2}
-=======
   m_Controller: {fileID: 9100000, guid: 0a36b865f0e34f54dbf3c31d4cc15af4, type: 2}
->>>>>>> Stashed changes
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -1053,11 +1044,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-<<<<<<< Updated upstream
-  m_AnchoredPosition: {x: 0, y: 247.70004}
-=======
   m_AnchoredPosition: {x: 0, y: 132}
->>>>>>> Stashed changes
   m_SizeDelta: {x: 1496, y: 841}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2109258088
