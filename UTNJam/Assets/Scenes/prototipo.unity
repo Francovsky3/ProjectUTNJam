@@ -1001,6 +1001,12 @@ MonoBehaviour:
   - {fileID: 3168844686789771686, guid: 6da6b73f0b28aa4f0bd0c9e229038a88, type: 3}
   - {fileID: 3299348238403660291, guid: e019066bfc47a3bab9cd419095a6e351, type: 3}
   - {fileID: 7958262815773768983, guid: 7b81fc553ac14f0438c1f61dbea2aa3e, type: 3}
+  - {fileID: 4981763505742443118, guid: 3b34eddcc9aa3da41ae30b4a31f1607d, type: 3}
+  - {fileID: 7105558930639718362, guid: 48deaf57b24c9de4d813703aebe49634, type: 3}
+  - {fileID: 3706974621309822615, guid: 2521e2eceace0fb2695fc95ef3b3a079, type: 3}
+  - {fileID: 3743655759231609991, guid: b56446638b331e346a77d25c6e3606a9, type: 3}
+  - {fileID: 522552112294357069, guid: 7862fd7d35689094f91b7a5876526f68, type: 3}
+  - {fileID: 3672441090030189385, guid: 108c6aa57daf410d086ab778b0635650, type: 3}
   escalaObjetos: 1.5
   lugaresEnBandeja: 5
   reponerBandeja: 1

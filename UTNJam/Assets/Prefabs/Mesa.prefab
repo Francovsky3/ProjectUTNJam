@@ -280,6 +280,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mesa
       objectReference: {fileID: 0}
+    - target: {fileID: 481516234200000003, guid: 535864e056fdb07e3b336476b367a8eb, type: 3}
+      propertyPath: inestabilidad
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 481516234200000003, guid: 535864e056fdb07e3b336476b367a8eb, type: 3}
+      propertyPath: masa
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 481516234200000003, guid: 535864e056fdb07e3b336476b367a8eb, type: 3}
+      propertyPath: apareceDesdeGrupo
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2219571968958762180, guid: 535864e056fdb07e3b336476b367a8eb, type: 3}
