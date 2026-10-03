@@ -18,6 +18,8 @@ public class JuegoFurnitower : MonoBehaviour
     [SerializeField] float centroTorreX = 0f;
     [Tooltip("Dónde se para la cámara para armar (por ejemplo 'Piece Camera pos'). Vacío = 40 unidades a la derecha de la torre.")]
     [SerializeField] Transform puntoArmado;
+    [SerializeField] float restartTimerMax = 2f;
+    [SerializeField] float restartTimer;
 
     [Header("Objetivo")]
     [Tooltip("Altura del jarrón medida desde el piso")]
@@ -143,6 +145,16 @@ public class JuegoFurnitower : MonoBehaviour
         if (MenuPausa.Pausado) return;
 
         Keyboard kb = Keyboard.current;
+
+        if (Input.GetKey(KeyCode.R))
+        {
+            restartTimer += Time.deltaTime;
+            if (restartTimer >= restartTimerMax)
+            {
+                Reiniciar();
+                return;
+            }
+        }
 
         switch (estado)
         {
