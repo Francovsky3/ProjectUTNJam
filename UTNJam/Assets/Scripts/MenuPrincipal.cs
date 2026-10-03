@@ -7,6 +7,7 @@ public class MenuPrincipal : MonoBehaviour
 {
     [SerializeField] Button botonJugar;
     [SerializeField] string escenaJuego = "prototipo";
+    
 
     void Start()
     {

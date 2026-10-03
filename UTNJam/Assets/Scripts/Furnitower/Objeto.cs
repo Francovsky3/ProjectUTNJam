@@ -9,6 +9,7 @@ public class Objeto : MonoBehaviour
     [Tooltip("Peso del objeto: define hacia dónde se vuelca el grupo. 0 = usar la masa del Rigidbody del prefab")]
     [SerializeField] float masa = 0f;
 
+    
     [Header("Aparición")]
     [Tooltip("Cantidad de grupos ya colocados en la torre a partir de la cual empieza a aparecer (0 = desde el principio)")]
     [SerializeField] int apareceDesdeGrupo = 0;

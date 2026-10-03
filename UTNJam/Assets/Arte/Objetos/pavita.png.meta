@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: db898188a14e175678c6b45dfb9170e8
+guid: 97d75c92358b83058925540080fcfdc9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4373100243113654579
-    second: Te juro que esto es un caballo_0
+      213: 3134592160046098613
+    second: pavita_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Te juro que esto es un caballo_0
+      name: pavita_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 1
-        width: 64
-        height: 44
+        x: 144
+        y: 95
+        width: 275
+        height: 305
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 339b6fd508f50bc30800000000000000
-      internalID: 4373100243113654579
+      spriteID: 5b8a54736fe408b20800000000000000
+      internalID: 3134592160046098613
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      Te juro que esto es un caballo_0: 4373100243113654579
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

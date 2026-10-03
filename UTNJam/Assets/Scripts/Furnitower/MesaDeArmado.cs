@@ -140,6 +140,7 @@ public class MesaDeArmado : MonoBehaviour
             if (!reponerBandeja && creados >= objetosTotales) break;
             ocupantes[i] = Crear(i, disponibles[Random.Range(0, disponibles.Count)]);
         }
+        
         return hayNuevos;
     }
 

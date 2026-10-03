@@ -386,7 +386,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Objeto
   inestabilidad: 4
   masa: 1.2
-  apareceDesdeGrupo: 2
+  apareceDesdeGrupo: 0
   dejaDeAparecerEnGrupo: 0
 --- !u!1 &5125669365986380732
 GameObject:
