@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -51,6 +52,16 @@ public class JuegoFurnitower : MonoBehaviour
     [SerializeField] Button botonRehacer;
     [SerializeField] Button botonReiniciar;
 
+    [Header("Pantalla de victoria (UI de la escena)")]
+    [Tooltip("Si queda vacío se busca en el Canvas un panel llamado '" + NombrePanelVictoria + "'")]
+    [SerializeField] GameObject panelVictoria;
+    [Tooltip("Texto donde la X se reemplaza por la cantidad de grupos. Si queda vacío se busca '" + NombreTextoGrupos + "' dentro del panel")]
+    [SerializeField] TMP_Text textoGrupos;
+
+    const string NombrePanelVictoria = "victoria";
+    const string NombreTextoGrupos = "texto victoria 2";
+    string plantillaGrupos;
+
     [Header("Colores")]
     [SerializeField] Color colorJarron = new Color(1f, 0.8f, 0.2f, 0.8f);
     [SerializeField] Color colorGuia = new Color(1f, 1f, 1f, 0.35f);
@@ -87,6 +98,9 @@ public class JuegoFurnitower : MonoBehaviour
     void Start()
     {
         if (panelFin != null) panelFin.SetActive(false);
+        BuscarPanelVictoria();
+        if (panelVictoria != null) panelVictoria.SetActive(false);
+        if (textoGrupos != null) plantillaGrupos = textoGrupos.text;
         if (botonRehacer != null) botonRehacer.onClick.AddListener(RehacerUltimo);
         if (botonReiniciar != null) botonReiniciar.onClick.AddListener(Reiniciar);
 
@@ -129,11 +143,6 @@ public class JuegoFurnitower : MonoBehaviour
         if (MenuPausa.Pausado) return;
 
         Keyboard kb = Keyboard.current;
-        if (kb != null && kb.rKey.wasPressedThisFrame)
-        {
-            Reiniciar();
-            return;
-        }
 
         switch (estado)
         {
@@ -265,10 +274,32 @@ public class JuegoFurnitower : MonoBehaviour
         motivoFin = motivo;
         estado = Estado.Fin;
 
+        if (gano && panelVictoria != null)
+        {
+            panelVictoria.SetActive(true);
+            if (textoGrupos != null) textoGrupos.text = plantillaGrupos.Replace("X", torre.Count.ToString());
+            return;
+        }
+
         if (panelFin != null)
         {
             panelFin.SetActive(true);
             if (botonRehacer != null) botonRehacer.gameObject.SetActive(!gano && puedeRehacer);
+        }
+    }
+
+    // Si no se asignaron en el Inspector, se buscan por nombre en el Canvas (al lado del panel de derrota)
+    void BuscarPanelVictoria()
+    {
+        if (panelVictoria == null && panelFin != null && panelFin.transform.parent != null)
+        {
+            Transform t = panelFin.transform.parent.Find(NombrePanelVictoria);
+            if (t != null) panelVictoria = t.gameObject;
+        }
+        if (textoGrupos == null && panelVictoria != null)
+        {
+            Transform t = panelVictoria.transform.Find(NombreTextoGrupos);
+            if (t != null) textoGrupos = t.GetComponent<TMP_Text>();
         }
     }
 
@@ -372,7 +403,8 @@ public class JuegoFurnitower : MonoBehaviour
         if (Time.time < mensajeHasta)
             GUI.Label(new Rect(0, 720 - altoTira - 38, ancho, 32), mensaje, estiloMensaje);
 
-        if (estado == Estado.Fin && panelFin == null)
+        bool hayPanelUI = gano ? panelVictoria != null || panelFin != null : panelFin != null;
+        if (estado == Estado.Fin && !hayPanelUI)
             DibujarPanelFin(ancho);
     }
 
