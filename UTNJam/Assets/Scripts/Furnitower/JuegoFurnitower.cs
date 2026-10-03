@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 // Loop del prototipo: armar un grupo en la mesa -> la cámara va a la torre -> apuntar ->
@@ -127,6 +126,8 @@ public class JuegoFurnitower : MonoBehaviour
 
     void Update()
     {
+        if (MenuPausa.Pausado) return;
+
         Keyboard kb = Keyboard.current;
         if (kb != null && kb.rKey.wasPressedThisFrame)
         {
@@ -175,7 +176,6 @@ public class JuegoFurnitower : MonoBehaviour
     void ActualizarApuntado()
     {
         Mouse mouse = Mouse.current;
-        Keyboard kb = Keyboard.current;
 
         float x = XApuntada();
         grupoActual.Apuntar(x, topeTorre + alturaLanzamiento);
@@ -183,8 +183,8 @@ public class JuegoFurnitower : MonoBehaviour
         guia.transform.position = new Vector3(grupoActual.CentroDeMasa.x, topeTorre + alturaLanzamiento / 2f, 0f);
         guia.transform.localScale = new Vector3(0.05f, alturaLanzamiento, 1f);
 
-        bool cancelar = (mouse != null && mouse.rightButton.wasPressedThisFrame) ||
-                        (kb != null && kb.escapeKey.wasPressedThisFrame);
+        // Esc queda para la pausa; el lanzamiento se cancela con click derecho
+        bool cancelar = mouse != null && mouse.rightButton.wasPressedThisFrame;
         if (cancelar)
         {
             mesa.DevolverGrupo(grupoActual);
@@ -303,13 +303,7 @@ public class JuegoFurnitower : MonoBehaviour
 
     void Reiniciar()
     {
-        Scene escena = SceneManager.GetActiveScene();
-        if (escena.buildIndex >= 0)
-            SceneManager.LoadScene(escena.buildIndex);
-#if UNITY_EDITOR
-        else
-            UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode(escena.path, new LoadSceneParameters(LoadSceneMode.Single));
-#endif
+        Escenas.Recargar();
     }
 
     public void Avisar(string texto)
@@ -358,7 +352,7 @@ public class JuegoFurnitower : MonoBehaviour
         GUI.Label(new Rect(px + 10, py + 56, 320, 24),
                   $"Grupo: {mesa.CantidadEnGrupo}/{mesa.MaxPorGrupo} objetos  ·  inestabilidad {mesa.InestabilidadGrupo:0.#}", estiloTexto);
 
-        botonVisible = enMesa;
+        botonVisible = enMesa && !MenuPausa.Pausado;
         rectBoton = new Rect(ancho - 210, 720 - altoTira - 10 - 44, 200, 44);
         if (botonVisible)
         {
@@ -414,7 +408,7 @@ public class JuegoFurnitower : MonoBehaviour
                 return $"Arrastrá objetos a la mesa y pegalos tocándose ({mesa.MinPorGrupo} a {mesa.MaxPorGrupo})  ·  " +
                        "Ruedita o Q/E: rotar mientras arrastrás  ·  Click derecho: devolver  ·  Espacio: soltar grupo";
             case Estado.Apuntando:
-                return "Mové el mouse para elegir dónde cae  ·  Click: soltar  ·  Click derecho o Esc: volver a armar";
+                return "Mové el mouse para elegir dónde cae  ·  Click: soltar  ·  Click derecho: volver a armar";
             case Estado.Cayendo:
                 return "Cayendo...";
             default:

@@ -17,6 +17,7 @@ public class BordesBotones : AssetPostprocessor
 if (nombre.StartsWith("boton_"))       imp.spriteBorder = new Vector4(44, 52, 44, 48);
 else if (nombre.StartsWith("panel_"))  imp.spriteBorder = new Vector4(60, 76, 60, 60);
 else if (nombre.StartsWith("titulo_")) imp.spriteBorder = new Vector4(100, 0, 100, 0);
+else if (nombre.StartsWith("slider_fondo") || nombre.StartsWith("slider_relleno")) imp.spriteBorder = new Vector4(50, 0, 50, 0);
 else return;
     }
 }
