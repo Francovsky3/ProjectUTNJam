@@ -145,6 +145,7 @@ public class MesaDeArmado : MonoBehaviour
             if (!reponerBandeja && creados >= objetosTotales) break;
             ocupantes[i] = Crear(i, Elegir(disponibles));
         }
+        
         return hayNuevos;
     }
 
