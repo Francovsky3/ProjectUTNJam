@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -52,8 +51,6 @@ public class JuegoFurnitower : MonoBehaviour
     [SerializeField] GameObject panelFin;
     [SerializeField] Button botonRehacer;
     [SerializeField] Button botonReiniciar;
-    [Tooltip("Opcional: debajo de su texto se agrega el motivo (se cayó, quedó inestable, ganaste...)")]
-    [SerializeField] TMP_Text textoFin;
 
     [Header("Colores")]
     [SerializeField] Color colorJarron = new Color(1f, 0.8f, 0.2f, 0.8f);
@@ -78,7 +75,6 @@ public class JuegoFurnitower : MonoBehaviour
     GrupoQueCae ultimoGrupo;
     float estabilidadAntes, topeAntes;
 
-    string tituloFin;
     string mensaje = "";
     float mensajeHasta;
 
@@ -94,7 +90,6 @@ public class JuegoFurnitower : MonoBehaviour
         if (panelFin != null) panelFin.SetActive(false);
         if (botonRehacer != null) botonRehacer.onClick.AddListener(RehacerUltimo);
         if (botonReiniciar != null) botonReiniciar.onClick.AddListener(Reiniciar);
-        if (textoFin != null) tituloFin = textoFin.text;
 
         mesa = GetComponent<MesaDeArmado>();
         if (cam == null) cam = Camera.main != null ? Camera.main : FindAnyObjectByType<Camera>();
@@ -274,8 +269,6 @@ public class JuegoFurnitower : MonoBehaviour
         {
             panelFin.SetActive(true);
             if (botonRehacer != null) botonRehacer.gameObject.SetActive(!gano && puedeRehacer);
-            if (textoFin != null)
-                textoFin.text = $"{(gano ? "¡Ganaste!" : tituloFin)}\n<size=45%>{motivo}</size>";
         }
     }
 

@@ -19,50 +19,87 @@ public class Objeto : MonoBehaviour
     public float Masa => masa;
     public int ApareceDesdeGrupo => apareceDesdeGrupo;
 
+    public int Lugar { get; set; } = -1;
+    public Collider[] Colliders => colliders;
+    public Quaternion RotacionInicial { get; private set; }   // la del prefab (ej. el colchón viene acostado)
+
     public bool PuedeAparecer(int gruposColocados)
     {
         return gruposColocados >= apareceDesdeGrupo &&
                (dejaDeAparecerEnGrupo <= 0 || gruposColocados < dejaDeAparecerEnGrupo);
     }
-    public int Lugar { get; set; } = -1;
+
+    static readonly int IdBaseColor = Shader.PropertyToID("_BaseColor");
+    static readonly int IdColor = Shader.PropertyToID("_Color");
 
     Collider[] colliders;
-    SpriteRenderer[] sprites;
+    Renderer[] renderers;   // sprites o mallas (los objetos placeholder son primitivas 3D)
     int[] ordenes;
+    Color[] coloresOriginales;
+    MaterialPropertyBlock bloque;
 
     void Awake()
     {
+        RotacionInicial = transform.localRotation;
+
         // En la mesa los objetos no tienen física propia: el Rigidbody lo pone el grupo cuando cae
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
+        float masaPrefab = 0f;
+        foreach (Rigidbody rb in GetComponentsInChildren<Rigidbody>())
         {
-            if (masa <= 0) masa = rb.mass;
+            masaPrefab += rb.mass;
             rb.isKinematic = true;
             Destroy(rb);
         }
-        if (masa <= 0) masa = 0.5f;
+        if (masa <= 0) masa = masaPrefab > 0 ? masaPrefab : 0.5f;
 
         // Componentes del sistema anterior que en el prototipo no se usan
         foreach (Apilable a in GetComponents<Apilable>()) Destroy(a);
         foreach (Drag d in GetComponents<Drag>()) Destroy(d);
 
         colliders = GetComponentsInChildren<Collider>();
-        sprites = GetComponentsInChildren<SpriteRenderer>();
-        ordenes = new int[sprites.Length];
-        for (int i = 0; i < sprites.Length; i++)
-            ordenes[i] = sprites[i].sortingOrder;
+        renderers = GetComponentsInChildren<Renderer>();
+        ordenes = new int[renderers.Length];
+        coloresOriginales = new Color[renderers.Length];
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            ordenes[i] = renderers[i].sortingOrder;
+            coloresOriginales[i] = ColorDe(renderers[i]);
+        }
     }
 
+    static Color ColorDe(Renderer r)
+    {
+        if (r is SpriteRenderer sr) return sr.color;
+        Material m = r.sharedMaterial;
+        if (m == null) return Color.white;
+        if (m.HasProperty(IdBaseColor)) return m.GetColor(IdBaseColor);
+        if (m.HasProperty(IdColor)) return m.GetColor(IdColor);
+        return Color.white;
+    }
+
+    // Multiplica el color original por "color" (blanco = color original)
     public void Teñir(Color color)
     {
-        foreach (SpriteRenderer s in sprites)
-            s.color = color;
+        if (bloque == null) bloque = new MaterialPropertyBlock();
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Color final = coloresOriginales[i] * color;
+            if (renderers[i] is SpriteRenderer sr)
+            {
+                sr.color = final;
+                continue;
+            }
+            renderers[i].GetPropertyBlock(bloque);
+            bloque.SetColor(IdBaseColor, final);
+            bloque.SetColor(IdColor, final);
+            renderers[i].SetPropertyBlock(bloque);
+        }
     }
 
     public void AlFrente(bool alFrente)
     {
-        for (int i = 0; i < sprites.Length; i++)
-            sprites[i].sortingOrder = ordenes[i] + (alFrente ? 10 : 0);
+        for (int i = 0; i < renderers.Length; i++)
+            renderers[i].sortingOrder = ordenes[i] + (alFrente ? 10 : 0);
     }
 
     public Bounds Limites()
@@ -80,10 +117,10 @@ public class Objeto : MonoBehaviour
     public Bounds LimitesVisuales()
     {
         Bounds b = new Bounds(transform.position, Vector3.zero);
-        for (int i = 0; i < sprites.Length; i++)
+        for (int i = 0; i < renderers.Length; i++)
         {
-            if (i == 0) b = sprites[i].bounds;
-            else b.Encapsulate(sprites[i].bounds);
+            if (i == 0) b = renderers[i].bounds;
+            else b.Encapsulate(renderers[i].bounds);
         }
         return b;
     }
