@@ -1,19 +1,24 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-// Loop del prototipo: armar un grupo en la mesa -> apuntar -> cae y se congela -> repetir
-// hasta llegar al jarrón (gana) o hasta que la torre se cae o se vuelve inestable (pierde).
+// Loop del prototipo: armar un grupo en la mesa -> la cámara va a la torre -> apuntar ->
+// cae y se congela -> la cámara vuelve a la mesa -> repetir, hasta llegar al jarrón (gana)
+// o hasta que la torre se cae o se vuelve inestable (pierde).
 [RequireComponent(typeof(MesaDeArmado))]
 public class JuegoFurnitower : MonoBehaviour
 {
-    enum Estado { Armado, Apuntando, Cayendo, Fin }
+    enum Estado { Armado, Apuntando, Cayendo, Viendo, Fin }
 
     [Header("Escena (si se dejan vacíos se buscan solos)")]
     [SerializeField] Camera cam;
     [SerializeField] Collider suelo;
     [SerializeField] float centroTorreX = 0f;
+    [Tooltip("Dónde se para la cámara para armar (por ejemplo 'Piece Camera pos'). Vacío = 40 unidades a la derecha de la torre.")]
+    [SerializeField] Transform puntoArmado;
 
     [Header("Objetivo")]
     [Tooltip("Altura del jarrón medida desde el piso")]
@@ -28,17 +33,27 @@ public class JuegoFurnitower : MonoBehaviour
     [SerializeField] float anchoReferencia = 2f;
 
     [Header("Apuntado y caída")]
-    [SerializeField] float rangoApuntado = 3f;
+    [SerializeField] float rangoApuntado = 4f;
     [SerializeField] float alturaLanzamiento = 2f;
     [SerializeField] float tiempoMaxAsentarse = 3f;
     [SerializeField] float tiempoQuieto = 0.4f;
     [SerializeField] float umbralQuieto = 0.05f;
 
     [Header("Cámara")]
-    [SerializeField] float desplazamientoCamaraX = -3f;
     [SerializeField] float camaraSobrePiso = 4f;
-    [SerializeField] float camaraSobreTope = 0.5f;
-    [SerializeField] float suavizadoCamara = 3f;
+    [SerializeField] float camaraSobreTope = 1f;
+    [Tooltip("Segundos aproximados que tarda la cámara en ir de la mesa a la torre")]
+    [SerializeField] float tiempoCamara = 0.4f;
+    [Tooltip("Segundos que se queda mirando la torre después de que el grupo se asienta")]
+    [SerializeField] float pausaTrasCaer = 0.8f;
+
+    [Header("Pantalla de fin (UI de la escena)")]
+    [Tooltip("Panel que aparece al ganar o perder. Si queda vacío se usa un panel dibujado por código.")]
+    [SerializeField] GameObject panelFin;
+    [SerializeField] Button botonRehacer;
+    [SerializeField] Button botonReiniciar;
+    [Tooltip("Opcional: debajo de su texto se agrega el motivo (se cayó, quedó inestable, ganaste...)")]
+    [SerializeField] TMP_Text textoFin;
 
     [Header("Colores")]
     [SerializeField] Color colorJarron = new Color(1f, 0.8f, 0.2f, 0.8f);
@@ -52,8 +67,18 @@ public class JuegoFurnitower : MonoBehaviour
     SpriteRenderer guia;
 
     float pisoY, topeTorre, estabilidad;
+    Vector2 posArmado;
+    Vector3 velocidadCamara;
+    float finPausa;
     bool gano;
+    bool puedeRehacer;
     string motivoFin = "";
+
+    // Para poder deshacer el último grupo si la torre no aguantó
+    GrupoQueCae ultimoGrupo;
+    float estabilidadAntes, topeAntes;
+
+    string tituloFin;
     string mensaje = "";
     float mensajeHasta;
 
@@ -66,6 +91,11 @@ public class JuegoFurnitower : MonoBehaviour
 
     void Start()
     {
+        if (panelFin != null) panelFin.SetActive(false);
+        if (botonRehacer != null) botonRehacer.onClick.AddListener(RehacerUltimo);
+        if (botonReiniciar != null) botonReiniciar.onClick.AddListener(Reiniciar);
+        if (textoFin != null) tituloFin = textoFin.text;
+
         mesa = GetComponent<MesaDeArmado>();
         if (cam == null) cam = Camera.main != null ? Camera.main : FindAnyObjectByType<Camera>();
         if (suelo == null)
@@ -85,15 +115,18 @@ public class JuegoFurnitower : MonoBehaviour
         topeTorre = pisoY;
         estabilidad = estabilidadInicial;
 
-        cam.transform.position = new Vector3(centroTorreX + desplazamientoCamaraX, pisoY + camaraSobrePiso, cam.transform.position.z);
+        posArmado = puntoArmado != null
+            ? (Vector2)puntoArmado.position
+            : new Vector2(centroTorreX + 40f, pisoY + camaraSobrePiso);
+        cam.transform.position = new Vector3(posArmado.x, posArmado.y, cam.transform.position.z);
 
         raizTorre = new GameObject("Torre").transform;
-        Dibujo.Rectangulo(null, "Altura del jarrón", new Vector2(centroTorreX + 0.5f, pisoY + alturaJarron),
-                          new Vector2(rangoApuntado * 2f + 2f, 0.06f), colorJarron, -5);
+        Dibujo.Rectangulo(null, "Altura del jarrón", new Vector2(centroTorreX, pisoY + alturaJarron),
+                          new Vector2(rangoApuntado * 2f + 3f, 0.06f), colorJarron, -5);
         guia = Dibujo.Rectangulo(null, "Guía de caída", Vector2.zero, Vector2.one, colorGuia, -5);
         guia.enabled = false;
 
-        mesa.Iniciar(cam, this);
+        mesa.Iniciar(posArmado, cam, this);
         estado = Estado.Armado;
     }
 
@@ -119,6 +152,10 @@ public class JuegoFurnitower : MonoBehaviour
 
             case Estado.Cayendo:
                 if (grupoActual.Estado == GrupoQueCae.Fase.Asentado) Evaluar();
+                break;
+
+            case Estado.Viendo:
+                if (Time.time >= finPausa) estado = Estado.Armado;
                 break;
         }
 
@@ -182,9 +219,13 @@ public class JuegoFurnitower : MonoBehaviour
         grupoActual = null;
         torre.Add(g);
 
+        ultimoGrupo = g;
+        estabilidadAntes = estabilidad;
+        topeAntes = topeTorre;
+
         if (g.SeCayo)
         {
-            Terminar(false, "¡Un grupo se cayó de la torre!");
+            Terminar(false, "¡Un grupo se cayó de la torre!", true);
             return;
         }
 
@@ -200,7 +241,7 @@ public class JuegoFurnitower : MonoBehaviour
         if (estabilidad <= 0f)
         {
             estabilidad = 0f;
-            Terminar(false, "La torre quedó demasiado inestable");
+            Terminar(false, "La torre quedó demasiado inestable", true);
             return;
         }
         if (Altura >= alturaJarron)
@@ -209,28 +250,62 @@ public class JuegoFurnitower : MonoBehaviour
             return;
         }
 
-        mesa.Reponer();
+        if (mesa.Reponer(torre.Count))
+            Avisar("¡Aparecen objetos nuevos!");
         if (!mesa.QuedanObjetosSuficientes)
         {
             Terminar(false, "Te quedaste sin objetos");
             return;
         }
+
+        // Un momento para ver cómo quedó la torre antes de volver a la mesa
+        finPausa = Time.time + pausaTrasCaer;
+        estado = Estado.Viendo;
+    }
+
+    void Terminar(bool gano, string motivo, bool puedeRehacer = false)
+    {
+        this.gano = gano;
+        this.puedeRehacer = puedeRehacer;
+        motivoFin = motivo;
+        estado = Estado.Fin;
+
+        if (panelFin != null)
+        {
+            panelFin.SetActive(true);
+            if (botonRehacer != null) botonRehacer.gameObject.SetActive(!gano && puedeRehacer);
+            if (textoFin != null)
+                textoFin.text = $"{(gano ? "¡Ganaste!" : tituloFin)}\n<size=45%>{motivo}</size>";
+        }
+    }
+
+    // Saca de la torre el último grupo y lo devuelve a la mesa tal como estaba armado,
+    // dejando la estabilidad y la altura como antes de soltarlo
+    void RehacerUltimo()
+    {
+        if (ultimoGrupo == null) return;
+
+        torre.Remove(ultimoGrupo);
+        estabilidad = estabilidadAntes;
+        topeTorre = topeAntes;
+        mesa.DevolverGrupo(ultimoGrupo);
+        ultimoGrupo = null;
+        if (panelFin != null) panelFin.SetActive(false);
+
+        Avisar("Corregí el grupo y volvé a soltarlo");
         estado = Estado.Armado;
     }
 
-    void Terminar(bool gano, string motivo)
-    {
-        this.gano = gano;
-        motivoFin = motivo;
-        estado = Estado.Fin;
-    }
-
+    // En Armado la cámara mira la mesa; en el resto de los estados mira la torre, siguiendo su altura
     void MoverCamara()
     {
-        float objetivo = Mathf.Max(pisoY + camaraSobrePiso, topeTorre + camaraSobreTope);
+        Vector2 objetivo = estado == Estado.Armado
+            ? posArmado
+            : new Vector2(centroTorreX, Mathf.Max(pisoY + camaraSobrePiso, topeTorre + camaraSobreTope));
+
         Vector3 p = cam.transform.position;
-        p.y = Mathf.Lerp(p.y, objetivo, 1f - Mathf.Exp(-suavizadoCamara * Time.deltaTime));
-        cam.transform.position = p;
+        Vector3 destino = new Vector3(objetivo.x, objetivo.y, p.z);
+        cam.transform.position = Vector3.SmoothDamp(p, destino, ref velocidadCamara, tiempoCamara);
     }
 
     void Reiniciar()
@@ -277,16 +352,21 @@ public class JuegoFurnitower : MonoBehaviour
         float ancho = Screen.width / escalaGui;
         CrearEstilos();
 
-        rectPanel = new Rect(10, 10, 360, 92);
+        // En la pantalla de armado el panel va abajo a la izquierda (arriba está la cinta);
+        // en la torre va arriba a la izquierda
+        bool enMesa = estado == Estado.Armado;
+        const float altoTira = 34f;
+        rectPanel = enMesa ? new Rect(10, 720 - altoTira - 10 - 92, 340, 92) : new Rect(10, 10, 340, 92);
+        float px = rectPanel.x, py = rectPanel.y;
         GUI.Box(rectPanel, GUIContent.none);
-        GUI.Label(new Rect(20, 14, 110, 24), "Estabilidad", estiloTexto);
-        DibujarBarra(new Rect(130, 18, 230, 16), estabilidad / estabilidadInicial);
-        GUI.Label(new Rect(20, 40, 340, 24), $"Altura: {Altura:0.0} / {alturaJarron:0.0}", estiloTexto);
-        GUI.Label(new Rect(20, 66, 340, 24),
+        GUI.Label(new Rect(px + 10, py + 4, 110, 24), "Estabilidad", estiloTexto);
+        DibujarBarra(new Rect(px + 120, py + 8, 210, 16), estabilidad / estabilidadInicial);
+        GUI.Label(new Rect(px + 10, py + 30, 320, 24), $"Altura: {Altura:0.0} / {alturaJarron:0.0}", estiloTexto);
+        GUI.Label(new Rect(px + 10, py + 56, 320, 24),
                   $"Grupo: {mesa.CantidadEnGrupo}/{mesa.MaxPorGrupo} objetos  ·  inestabilidad {mesa.InestabilidadGrupo:0.#}", estiloTexto);
 
-        botonVisible = estado == Estado.Armado;
-        rectBoton = new Rect(380, 10, 190, 40);
+        botonVisible = enMesa;
+        rectBoton = new Rect(ancho - 210, 720 - altoTira - 10 - 44, 200, 44);
         if (botonVisible)
         {
             GUI.enabled = mesa.GrupoListo;
@@ -298,21 +378,38 @@ public class JuegoFurnitower : MonoBehaviour
         GUI.Label(new Rect(jarron.x / escalaGui - 220, (Screen.height - jarron.y) / escalaGui - 26, 220, 24),
                   "Jarrón de galletitas", estiloJarron);
 
-        Rect tira = new Rect(0, 720 - 34, ancho, 34);
+        Rect tira = new Rect(0, 720 - altoTira, ancho, altoTira);
         GUI.Box(tira, GUIContent.none);
         GUI.Label(tira, Instrucciones(), estiloCentrado);
 
         if (Time.time < mensajeHasta)
-            GUI.Label(new Rect(0, 720 - 72, ancho, 32), mensaje, estiloMensaje);
+            GUI.Label(new Rect(0, 720 - altoTira - 38, ancho, 32), mensaje, estiloMensaje);
 
-        if (estado == Estado.Fin)
+        if (estado == Estado.Fin && panelFin == null)
+            DibujarPanelFin(ancho);
+    }
+
+    void DibujarPanelFin(float ancho)
+    {
+        Rect r = new Rect(ancho / 2f - 240, 720 / 2f - 100, 480, 200);
+        GUI.Box(r, GUIContent.none);
+        GUI.Box(r, GUIContent.none);
+
+        string titulo = gano ? "¡Ganaste!" : puedeRehacer ? "¡La torre no aguantó!" : "Perdiste";
+        GUI.Label(new Rect(r.x, r.y + 18, r.width, 44), titulo, estiloTitulo);
+        GUI.Label(new Rect(r.x, r.y + 70, r.width, 30), motivoFin, estiloCentrado);
+
+        Rect botonIzq = new Rect(r.x + 30, r.y + 120, 200, 48);
+        Rect botonDer = new Rect(r.xMax - 230, r.y + 120, 200, 48);
+        if (!gano && puedeRehacer)
         {
-            Rect r = new Rect(ancho / 2f - 230, 720 / 2f - 85, 460, 170);
-            GUI.Box(r, GUIContent.none);
-            GUI.Box(r, GUIContent.none);
-            GUI.Label(new Rect(r.x, r.y + 20, r.width, 44), gano ? "¡Ganaste!" : "Perdiste", estiloTitulo);
-            GUI.Label(new Rect(r.x, r.y + 75, r.width, 30), motivoFin, estiloCentrado);
-            GUI.Label(new Rect(r.x, r.y + 115, r.width, 30), "Apretá R para reiniciar", estiloCentrado);
+            if (GUI.Button(botonIzq, "Rehacer último grupo", estiloBoton)) RehacerUltimo();
+            if (GUI.Button(botonDer, "Empezar de nuevo", estiloBoton)) Reiniciar();
+        }
+        else
+        {
+            Rect centro = new Rect(r.center.x - 100, r.y + 120, 200, 48);
+            if (GUI.Button(centro, gano ? "Jugar de nuevo" : "Empezar de nuevo", estiloBoton)) Reiniciar();
         }
     }
 

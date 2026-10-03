@@ -9,8 +9,21 @@ public class Objeto : MonoBehaviour
     [Tooltip("Peso del objeto: define hacia dónde se vuelca el grupo. 0 = usar la masa del Rigidbody del prefab")]
     [SerializeField] float masa = 0f;
 
+    [Header("Aparición")]
+    [Tooltip("Cantidad de grupos ya colocados en la torre a partir de la cual empieza a aparecer (0 = desde el principio)")]
+    [SerializeField] int apareceDesdeGrupo = 0;
+    [Tooltip("Deja de aparecer cuando la torre llega a esta cantidad de grupos (0 = nunca deja de aparecer)")]
+    [SerializeField] int dejaDeAparecerEnGrupo = 0;
+
     public float Inestabilidad => inestabilidad;
     public float Masa => masa;
+    public int ApareceDesdeGrupo => apareceDesdeGrupo;
+
+    public bool PuedeAparecer(int gruposColocados)
+    {
+        return gruposColocados >= apareceDesdeGrupo &&
+               (dejaDeAparecerEnGrupo <= 0 || gruposColocados < dejaDeAparecerEnGrupo);
+    }
     public int Lugar { get; set; } = -1;
 
     Collider[] colliders;
@@ -59,6 +72,18 @@ public class Objeto : MonoBehaviour
         {
             if (i == 0) b = colliders[i].bounds;
             else b.Encapsulate(colliders[i].bounds);
+        }
+        return b;
+    }
+
+    // Límites del dibujo (no de los colliders); se actualizan al instante al mover el transform
+    public Bounds LimitesVisuales()
+    {
+        Bounds b = new Bounds(transform.position, Vector3.zero);
+        for (int i = 0; i < sprites.Length; i++)
+        {
+            if (i == 0) b = sprites[i].bounds;
+            else b.Encapsulate(sprites[i].bounds);
         }
         return b;
     }
