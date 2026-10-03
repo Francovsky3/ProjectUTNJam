@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 5975648569761971106}
   - component: {fileID: 4102322588090045679}
   - component: {fileID: 1540157441652290218}
+  - component: {fileID: 4815162342000000013}
   m_Layer: 0
   m_Name: Guitar
   m_TagString: Untagged
@@ -340,3 +341,19 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4815162342000000013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3706974621309822615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60d97c78eb237ce4eb603b726a22ed49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Objeto
+  inestabilidad: 5
+  masa: 1.2
+  apareceDesdeGrupo: 3
+  dejaDeAparecerEnGrupo: 0
