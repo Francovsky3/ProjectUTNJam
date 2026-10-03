@@ -1927,8 +1927,10 @@ MonoBehaviour:
   suelo: {fileID: 0}
   centroTorreX: 0
   puntoArmado: {fileID: 460873878}
-  alturaJarron: 7
-  estabilidadInicial: 100
+  restartTimerMax: 2
+  restartTimer: 0
+  alturaJarron: 10
+  estabilidadInicial: 500
   pesoInclinacion: 1
   pesoDesvio: 1
   anchoReferencia: 2
