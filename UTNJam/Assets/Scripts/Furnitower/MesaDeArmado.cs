@@ -14,6 +14,8 @@ public class MesaDeArmado : MonoBehaviour
     [Tooltip("Rellenar la bandeja después de cada grupo. Si está apagado, se usa un pool fijo de 'Objetos Totales'.")]
     [SerializeField] bool reponerBandeja = true;
     [SerializeField] int objetosTotales = 8;
+    [Tooltip("Máximo de objetos iguales en la mesa a la vez (cinta + grupo que se está armando)")]
+    [SerializeField] int maxRepetidos = 2;
 
     [Header("Grupo")]
     [SerializeField] int minPorGrupo = 2;
@@ -50,6 +52,7 @@ public class MesaDeArmado : MonoBehaviour
 
     readonly List<Objeto> enMesa = new List<Objeto>();
     readonly List<Objeto> grupo = new List<Objeto>();
+    readonly HashSet<GameObject> yaSalieron = new HashSet<GameObject>();
     readonly Dictionary<Objeto, Pose> posesArmado = new Dictionary<Objeto, Pose>();
 
     Objeto agarrado;
@@ -140,9 +143,30 @@ public class MesaDeArmado : MonoBehaviour
         {
             if (ocupantes[i] != null) continue;
             if (!reponerBandeja && creados >= objetosTotales) break;
-            ocupantes[i] = Crear(i, disponibles[Random.Range(0, disponibles.Count)]);
+            ocupantes[i] = Crear(i, Elegir(disponibles));
         }
+        
         return hayNuevos;
+    }
+
+    // Elige qué objeto aparece: primero los que todavía no salieron nunca en la partida
+    // (así cada objeto nuevo sale al menos una vez) y nunca más de maxRepetidos iguales en la mesa
+    GameObject Elegir(List<GameObject> disponibles)
+    {
+        List<GameObject> candidatos = disponibles.FindAll(p => CantidadEnMesa(p) < maxRepetidos);
+        if (candidatos.Count == 0) candidatos = disponibles;   // pocos tipos habilitados: se permite repetir
+
+        List<GameObject> nuevos = candidatos.FindAll(p => !yaSalieron.Contains(p));
+        List<GameObject> lista = nuevos.Count > 0 ? nuevos : candidatos;
+        return lista[Random.Range(0, lista.Count)];
+    }
+
+    int CantidadEnMesa(GameObject prefab)
+    {
+        int cantidad = 0;
+        foreach (Objeto o in enMesa)
+            if (o.Prefab == prefab) cantidad++;
+        return cantidad;
     }
 
     Objeto Crear(int lugar, GameObject prefab)
@@ -153,8 +177,10 @@ public class MesaDeArmado : MonoBehaviour
         Objeto o = go.GetComponent<Objeto>();
         if (o == null) o = go.AddComponent<Objeto>();
         o.Lugar = lugar;
+        o.Prefab = prefab;
 
         creados++;
+        yaSalieron.Add(prefab);
         enMesa.Add(o);
         VolverALugar(o);
         return o;

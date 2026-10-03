@@ -9,6 +9,7 @@ public class Objeto : MonoBehaviour
     [Tooltip("Peso del objeto: define hacia dónde se vuelca el grupo. 0 = usar la masa del Rigidbody del prefab")]
     [SerializeField] float masa = 0f;
 
+    
     [Header("Aparición")]
     [Tooltip("Cantidad de grupos ya colocados en la torre a partir de la cual empieza a aparecer (0 = desde el principio)")]
     [SerializeField] int apareceDesdeGrupo = 0;
@@ -20,6 +21,7 @@ public class Objeto : MonoBehaviour
     public int ApareceDesdeGrupo => apareceDesdeGrupo;
 
     public int Lugar { get; set; } = -1;
+    public GameObject Prefab { get; set; }   // de qué prefab salió (para no repetir de más)
     public Collider[] Colliders => colliders;
     public Quaternion RotacionInicial { get; private set; }   // la del prefab (ej. el colchón viene acostado)
 
