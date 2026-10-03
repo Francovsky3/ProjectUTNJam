@@ -1,17 +1,26 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 // Menú principal: el botón Jugar lleva a la escena del juego
 public class MenuPrincipal : MonoBehaviour
 {
-    [SerializeField] Button botonJugar;
+
     [SerializeField] string escenaJuego = "prototipo";
     
 
-    void Start()
+    [SerializeField] private Animator albumAnimator;
+
+    public void OpenAlbum()
     {
-        if (botonJugar != null) botonJugar.onClick.AddListener(Jugar);
+        albumAnimator.SetBool("IsOpen", true);
+    }
+
+    public void CloseAlbum()
+    {
+        albumAnimator.SetBool("IsOpen", false);
     }
 
     public void Jugar()

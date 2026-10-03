@@ -23,7 +23,11 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0.05
+<<<<<<< Updated upstream
         value: 0
+=======
+        value: -4.4639893
+>>>>>>> Stashed changes
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -44,7 +48,11 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0.05
+<<<<<<< Updated upstream
         value: 0
+=======
+        value: -1
+>>>>>>> Stashed changes
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -113,7 +121,11 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0.05
+<<<<<<< Updated upstream
         value: 0
+=======
+        value: -4.4639893
+>>>>>>> Stashed changes
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -134,7 +146,11 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0.05
+<<<<<<< Updated upstream
         value: 0
+=======
+        value: -1
+>>>>>>> Stashed changes
         inSlope: 0
         outSlope: 0
         tangentMode: 136
