@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4702636643374788941}
   - component: {fileID: 6024739128691795604}
   - component: {fileID: 3909652095808678336}
+  - component: {fileID: -5440120295637739970}
   m_Layer: 0
   m_Name: Caballo
   m_TagString: Apilable
@@ -29,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 6103081773231622144}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.11320323, w: 0.9935719}
-  m_LocalPosition: {x: 1.61, y: -1.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -43,7 +44,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6103081773231622144}
   serializedVersion: 5
-  m_Mass: 1
+  m_Mass: 0.5
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: -0.7, z: 0}
@@ -55,10 +56,10 @@ Rigidbody:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_ImplicitCom: 0
+  m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 48
   m_CollisionDetection: 0
@@ -142,7 +143,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6103081773231622144}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 12df8ed89bad5758384eaa9144597341, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -158,3 +159,15 @@ CapsuleCollider:
   m_Height: 1.2101443
   m_Direction: 0
   m_Center: {x: 0.014657736, y: -0.023172438, z: 0}
+--- !u!114 &-5440120295637739970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6103081773231622144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a04336569eef5f6881690a74ce69a77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Drag

@@ -1,5 +1,5 @@
-using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Apilable : MonoBehaviour
 {
@@ -23,7 +23,6 @@ public class Apilable : MonoBehaviour
             {
                 isGrounded = false;
                 rb.isKinematic = true;
-                Debug.Log("pare");
             }
         }
     }
@@ -40,7 +39,6 @@ public class Apilable : MonoBehaviour
             if (collision.gameObject.CompareTag("Ground"))
             {
                 isGrounded = true;
-                Debug.Log("hit ground");
             }
 
             if (collision.gameObject.CompareTag("Apilable"))
@@ -48,10 +46,10 @@ public class Apilable : MonoBehaviour
                 if (collision.gameObject.GetComponent<Apilable>().GetGrounded())
                 {
                     isGrounded = true;
-                    Debug.Log("hit object");
                 }
             }
         }
-    
     }
 }
+
+
