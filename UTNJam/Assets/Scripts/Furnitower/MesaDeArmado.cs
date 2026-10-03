@@ -3,10 +3,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 // Mesa donde el jugador arrastra, rota y pega objetos para armar un grupo.
-// Cuelga de la cámara, así sube junto con ella a medida que crece la torre.
+// Está en su propia zona del mundo; la cámara viene acá para armar y va a la torre para soltar.
 public class MesaDeArmado : MonoBehaviour
 {
     [Header("Objetos")]
+    [Tooltip("Todos los objetos posibles. Cada uno define en su componente Objeto desde qué grupo aparece.")]
     [SerializeField] List<GameObject> prefabs;
     [SerializeField] float escalaObjetos = 1.5f;
     [SerializeField] int lugaresEnBandeja = 5;
@@ -20,15 +21,20 @@ public class MesaDeArmado : MonoBehaviour
     [SerializeField] float margenContacto = 0.08f;
     [SerializeField] float pasoRotacion = 15f;
 
-    [Header("Ubicación (relativa al centro de la cámara)")]
-    [SerializeField] Vector2 centroZona = new Vector2(-4.8f, 1f);
-    [SerializeField] Vector2 tamañoZona = new Vector2(5.2f, 4f);
-    [SerializeField] float alturaBandeja = -2.7f;
-    [SerializeField] float separacionLugares = 1.2f;
+    [Header("Fondo")]
+    [Tooltip("Imagen de fondo de la pantalla de armado; se escala para ocupar todo el alto de la cámara")]
+    [SerializeField] Sprite fondo;
+
+    [Header("Ubicación (relativa al punto de armado, con la cámara de tamaño 5)")]
+    [SerializeField] Vector2 centroZona = new Vector2(0f, -1.75f);
+    [SerializeField] Vector2 tamañoZona = new Vector2(8f, 5.2f);
+    [Tooltip("Altura de la cinta: los objetos de la bandeja se apoyan con su base en esta Y")]
+    [SerializeField] float alturaBandeja = 3.1f;
+    [SerializeField] float centroBandejaX = 0.7f;
+    [SerializeField] float separacionLugares = 2.6f;
 
     [Header("Colores")]
-    [SerializeField] Color colorMesa = new Color(0.55f, 0.38f, 0.25f, 0.9f);
-    [SerializeField] Color colorZona = new Color(0.95f, 0.9f, 0.75f, 0.35f);
+    [SerializeField] Color colorZona = new Color(1f, 1f, 1f, 0.15f);
     [SerializeField] Color colorGrupo = new Color(0.8f, 1f, 0.8f);
     [SerializeField] Color colorCentroDeMasa = new Color(0.9f, 0.15f, 0.15f, 0.9f);
 
@@ -64,19 +70,24 @@ public class MesaDeArmado : MonoBehaviour
         }
     }
 
-    public void Iniciar(Camera camara, JuegoFurnitower juego)
+    public void Iniciar(Vector2 centro, Camera camara, JuegoFurnitower juego)
     {
         cam = camara;
         this.juego = juego;
 
         raiz = new GameObject("Mesa").transform;
-        raiz.SetParent(cam.transform, false);
-        raiz.position = new Vector3(cam.transform.position.x, cam.transform.position.y, 0f);
+        raiz.position = new Vector3(centro.x, centro.y, 0f);
 
-        float ancho = Mathf.Max(tamañoZona.x, lugaresEnBandeja * separacionLugares) + 0.4f;
-        float arriba = centroZona.y + tamañoZona.y / 2f + 0.2f;
-        float abajo = alturaBandeja - 0.9f;
-        Dibujo.Rectangulo(raiz, "Fondo mesa", new Vector2(centroZona.x, (arriba + abajo) / 2f), new Vector2(ancho, arriba - abajo), colorMesa, -20);
+        if (fondo != null)
+        {
+            SpriteRenderer sr = new GameObject("Fondo armado").AddComponent<SpriteRenderer>();
+            sr.transform.SetParent(raiz, false);
+            sr.sprite = fondo;
+            sr.sortingOrder = -50;
+            float escala = cam.orthographicSize * 2f / fondo.bounds.size.y;
+            sr.transform.localScale = new Vector3(escala, escala, 1f);
+            sr.transform.localPosition = -fondo.bounds.center * escala;
+        }
         Dibujo.Rectangulo(raiz, "Zona de armado", centroZona, tamañoZona, colorZona, -19);
 
         // Rombo en el centro de masa del grupo y una plomada hacia abajo,
@@ -94,24 +105,42 @@ public class MesaDeArmado : MonoBehaviour
             Debug.LogError("MesaDeArmado: falta cargar los prefabs de objetos en la lista.");
             return;
         }
-        Reponer();
+        Reponer(0);
     }
 
-    // Llena los lugares vacíos de la bandeja
-    public void Reponer()
+    // Llena los lugares vacíos de la bandeja con objetos disponibles según el avance de la torre.
+    // Devuelve true si empezó a aparecer algún objeto nuevo.
+    public bool Reponer(int gruposColocados)
     {
-        if (prefabs == null || prefabs.Count == 0) return;
+        if (prefabs == null || prefabs.Count == 0) return false;
+
+        List<GameObject> disponibles = new List<GameObject>();
+        bool hayNuevos = false;
+        foreach (GameObject p in prefabs)
+        {
+            Objeto datos = p.GetComponent<Objeto>();
+            if (datos != null && !datos.PuedeAparecer(gruposColocados)) continue;
+            disponibles.Add(p);
+            if (datos != null && gruposColocados > 0 && datos.ApareceDesdeGrupo == gruposColocados)
+                hayNuevos = true;
+        }
+        if (disponibles.Count == 0)
+        {
+            Debug.LogWarning($"MesaDeArmado: ningún objeto puede aparecer con {gruposColocados} grupos; uso todos.");
+            disponibles.AddRange(prefabs);
+        }
+
         for (int i = 0; i < ocupantes.Length; i++)
         {
             if (ocupantes[i] != null) continue;
             if (!reponerBandeja && creados >= objetosTotales) break;
-            ocupantes[i] = Crear(i);
+            ocupantes[i] = Crear(i, disponibles[Random.Range(0, disponibles.Count)]);
         }
+        return hayNuevos;
     }
 
-    Objeto Crear(int lugar)
+    Objeto Crear(int lugar, GameObject prefab)
     {
-        GameObject prefab = prefabs[Random.Range(0, prefabs.Count)];
         GameObject go = Instantiate(prefab, raiz);
         go.transform.localScale = prefab.transform.localScale * escalaObjetos;
 
@@ -299,15 +328,20 @@ public class MesaDeArmado : MonoBehaviour
 
     Vector3 PosicionLugar(int lugar)
     {
-        float x = centroZona.x + (lugar - (lugaresEnBandeja - 1) / 2f) * separacionLugares;
+        float x = centroBandejaX + (lugar - (lugaresEnBandeja - 1) / 2f) * separacionLugares;
         return new Vector3(x, alturaBandeja, 0f);
     }
 
+    // Pone el objeto en su lugar de la cinta: centrado en X y apoyado con su base en la cinta
     void VolverALugar(Objeto o)
     {
         o.transform.SetParent(raiz, false);
         o.transform.localPosition = PosicionLugar(o.Lugar);
         o.transform.localRotation = Quaternion.identity;
+
+        Vector3 destino = raiz.TransformPoint(PosicionLugar(o.Lugar));
+        Bounds visual = o.LimitesVisuales();
+        o.transform.position += new Vector3(destino.x - visual.center.x, destino.y - visual.min.y, 0f);
         o.Teñir(Color.white);
     }
 
