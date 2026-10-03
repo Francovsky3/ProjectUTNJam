@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8eb06839e56b6d40c9fef4f6280598c5
+guid: 58ae10b165e60e5a4a898b9d1420cfa6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6242528533265953460
-    second: lampara_0
+      213: 6500645047279242008
+    second: sillita_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: lampara_0
+      name: sillita_0
       rect:
         serializedVersion: 2
-        x: 132
-        y: 100
-        width: 217
-        height: 254
+        x: 140
+        y: 63
+        width: 220
+        height: 349
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4b2be8d60aae1a650800000000000000
-      internalID: 6242528533265953460
+      spriteID: 81b4bf58a3ee63a50800000000000000
+      internalID: 6500645047279242008
       vertices: []
       indices: 
       edges: []

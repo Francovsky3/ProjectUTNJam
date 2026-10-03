@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 1760286877416554217}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.017, y: -0.034, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.65486604, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -51,8 +51,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.1228298, y: 0.13790607, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.12486319, y: 0.103566945, z: 1}
+  m_Center: {x: -0.030020285, y: -0.0048722327, z: 0}
 --- !u!1 &7958262815773768983
 GameObject:
   m_ObjectHideFlags: 0
@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 5966035283572077887}
   - component: {fileID: 8128878170352106592}
   - component: {fileID: 481516234200000009}
-  - component: {fileID: 3886630552726270983}
+  - component: {fileID: 1224501858889970358}
   m_Layer: 0
   m_Name: Florero
   m_TagString: Untagged
@@ -108,8 +108,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.13578069
-  m_Center: {x: -0.02, y: -0.19, z: 0}
+  m_Radius: 0.140414
+  m_Center: {x: -0.017847553, y: -0.19, z: 0}
 --- !u!54 &8128878170352106592
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -151,9 +151,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Objeto
   inestabilidad: 5
   masa: 1
-  apareceDesdeGrupo: 0
+  apareceDesdeGrupo: 3
   dejaDeAparecerEnGrupo: 0
---- !u!212 &3886630552726270983
+--- !u!212 &1224501858889970358
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
@@ -207,7 +207,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 5, y: 5}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
