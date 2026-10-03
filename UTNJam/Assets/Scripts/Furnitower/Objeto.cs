@@ -20,6 +20,7 @@ public class Objeto : MonoBehaviour
     public int ApareceDesdeGrupo => apareceDesdeGrupo;
 
     public int Lugar { get; set; } = -1;
+    public GameObject Prefab { get; set; }   // de qué prefab salió (para no repetir de más)
     public Collider[] Colliders => colliders;
     public Quaternion RotacionInicial { get; private set; }   // la del prefab (ej. el colchón viene acostado)
 
