@@ -69,6 +69,8 @@ public class JuegoFurnitower : MonoBehaviour
     [SerializeField] GameObject panelFin;
     [SerializeField] Button botonRehacer;
     [SerializeField] Button botonReiniciar;
+    [Tooltip("Botón 'Volver al menú'. Si queda vacío se busca en los paneles de fin un botón cuyo texto diga 'menú'")]
+    [SerializeField] Button botonVolverAlMenu;
 
     [Header("Pantalla de victoria (UI de la escena)")]
     [Tooltip("Si queda vacío se busca en el Canvas un panel llamado '" + NombrePanelVictoria + "'")]
@@ -146,6 +148,7 @@ public class JuegoFurnitower : MonoBehaviour
         if (textoGrupos != null) plantillaGrupos = textoGrupos.text;
         if (botonRehacer != null) botonRehacer.onClick.AddListener(RehacerUltimo);
         if (botonReiniciar != null) botonReiniciar.onClick.AddListener(Reiniciar);
+        ConectarBotonesMenu();
 
         mesa = GetComponent<MesaDeArmado>();
         if (cam == null) cam = Camera.main != null ? Camera.main : FindAnyObjectByType<Camera>();
@@ -536,6 +539,31 @@ public class JuegoFurnitower : MonoBehaviour
 
         go.AddComponent<Flotar>();   // toma como centro la posición recién puesta
         go.SetActive(false);
+    }
+
+    // Los botones "Volver al menú" de los paneles de fin cargan el menú principal.
+    // Se busca por texto, así funcionan también los que se agreguen después sin conectar nada en el Inspector.
+    void ConectarBotonesMenu()
+    {
+        List<Button> botones = new List<Button>();
+        if (botonVolverAlMenu != null) botones.Add(botonVolverAlMenu);
+        foreach (GameObject panel in new[] { panelFin, panelVictoria })
+        {
+            if (panel == null) continue;
+            foreach (Button b in panel.GetComponentsInChildren<Button>(true))
+            {
+                TMP_Text texto = b.GetComponentInChildren<TMP_Text>(true);
+                if (texto != null && DiceMenu(texto.text) && !botones.Contains(b)) botones.Add(b);
+            }
+        }
+        foreach (Button b in botones)
+            b.onClick.AddListener(() => Escenas.Cargar(escenaMenu));
+    }
+
+    static bool DiceMenu(string texto)
+    {
+        string t = texto.ToLowerInvariant().Replace('ú', 'u').Replace('ù', 'u');
+        return t.Contains("menu");
     }
 
     // Si no se asignaron en el Inspector, se buscan por nombre en el Canvas (al lado del panel de derrota)

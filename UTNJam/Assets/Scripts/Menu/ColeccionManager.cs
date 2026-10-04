@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class ColeccionManager : MonoBehaviour
 {
@@ -17,12 +17,18 @@ public class ColeccionManager : MonoBehaviour
         }
     }
 
-    public bool DesbloquearObjeto(string id)
+    public bool DesbloquearObjeto(string id) => Desbloquear(id);
+
+    public bool EstaDesbloqueado(string id) => Desbloqueado(id);
+
+    // Las versiones estáticas funcionan aunque no haya un ColeccionManager en la escena
+    // (por ejemplo, si se da Play directo en el juego sin pasar por el menú)
+    public static bool Desbloquear(string id)
     {
         if (string.IsNullOrEmpty(id))
             return false;
 
-        if (EstaDesbloqueado(id))
+        if (Desbloqueado(id))
             return false;
 
         PlayerPrefs.SetInt("Coleccion_" + id, 1);
@@ -33,8 +39,8 @@ public class ColeccionManager : MonoBehaviour
         return true;
     }
 
-    public bool EstaDesbloqueado(string id)
+    public static bool Desbloqueado(string id)
     {
-        return PlayerPrefs.GetInt("Coleccion_" + id, 0) == 1;
+        return !string.IsNullOrEmpty(id) && PlayerPrefs.GetInt("Coleccion_" + id, 0) == 1;
     }
 }

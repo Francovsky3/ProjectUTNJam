@@ -130,6 +130,6 @@ MonoBehaviour:
   masa: 0.5
   idColeccion: 
   sticker: {fileID: 0}
-  nombreColeccion: 
+  nombreColeccion: Pelota
   apareceDesdeGrupo: 2
   dejaDeAparecerEnGrupo: 0

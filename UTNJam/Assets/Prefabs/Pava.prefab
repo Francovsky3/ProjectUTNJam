@@ -184,7 +184,7 @@ MonoBehaviour:
   masa: 1.2
   idColeccion: 
   sticker: {fileID: 0}
-  nombreColeccion: 
+  nombreColeccion: Pava
   apareceDesdeGrupo: 2
   dejaDeAparecerEnGrupo: 0
 --- !u!212 &7028944370916698817

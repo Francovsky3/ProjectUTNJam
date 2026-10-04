@@ -10,8 +10,11 @@ public class Objeto : MonoBehaviour
     [SerializeField] float masa = 0f;
 
     [Header("Coleccion")]
+    [Tooltip("Identificador para el álbum. Vacío = el nombre del prefab")]
     [SerializeField] private string idColeccion;
+    [Tooltip("Figurita del álbum. Vacío = el dibujo del objeto")]
     [SerializeField] private Sprite sticker;
+    [Tooltip("Nombre que muestra el álbum. Vacío = el nombre del prefab")]
     [SerializeField] private string nombreColeccion;
 
     [Header("Aparición")]
@@ -20,9 +23,54 @@ public class Objeto : MonoBehaviour
     [Tooltip("Deja de aparecer cuando la torre llega a esta cantidad de grupos (0 = nunca deja de aparecer)")]
     [SerializeField] int dejaDeAparecerEnGrupo = 0;
 
-    public string IdColeccion => idColeccion;
-    public Sprite Sticker => sticker;
-    public string NombreColeccion => nombreColeccion;
+    // Si no se cargaron a mano, el álbum usa el nombre del prefab y el propio dibujo del objeto
+    public string IdColeccion => string.IsNullOrEmpty(idColeccion) ? NombreBase : idColeccion;
+    public Sprite Sticker => sticker != null ? sticker : DibujoPropio();
+    public string NombreColeccion => string.IsNullOrEmpty(nombreColeccion) ? NombreBase : nombreColeccion;
+
+    // Nombre del prefab: igual en el asset ("Silla") y en sus copias del juego ("Silla(Clone)")
+    string NombreBase => gameObject.name.Replace("(Clone)", "").Trim();
+
+    Sprite DibujoPropio()
+    {
+        SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>(true);
+        return sr != null ? RecortarAlDibujo(sr.sprite) : null;
+    }
+
+    // Los dibujos tienen mucho borde transparente: para el álbum se usa un sprite recortado a la silueta
+    // (la malla "Tight" del sprite), así la figurita muestra el objeto grande. Se crea una sola vez por sprite.
+    static readonly Dictionary<Sprite, Sprite> recortes = new Dictionary<Sprite, Sprite>();
+
+    static Sprite RecortarAlDibujo(Sprite original)
+    {
+        if (original == null) return null;
+        if (recortes.TryGetValue(original, out Sprite guardado) && guardado != null) return guardado;
+
+        Vector2[] vertices = original.vertices;
+        if (vertices.Length == 0) return original;
+
+        Vector2 min = vertices[0], max = vertices[0];
+        foreach (Vector2 v in vertices)
+        {
+            min = Vector2.Min(min, v);
+            max = Vector2.Max(max, v);
+        }
+
+        // De unidades del sprite (con origen en el pivote) a píxeles de la textura
+        float ppu = original.pixelsPerUnit;
+        Rect r = original.rect;
+        float x0 = Mathf.Clamp(r.x + original.pivot.x + min.x * ppu, r.xMin, r.xMax);
+        float y0 = Mathf.Clamp(r.y + original.pivot.y + min.y * ppu, r.yMin, r.yMax);
+        float x1 = Mathf.Clamp(r.x + original.pivot.x + max.x * ppu, r.xMin, r.xMax);
+        float y1 = Mathf.Clamp(r.y + original.pivot.y + max.y * ppu, r.yMin, r.yMax);
+        if (x1 - x0 < 1f || y1 - y0 < 1f) return original;
+
+        Sprite recorte = Sprite.Create(original.texture, Rect.MinMaxRect(x0, y0, x1, y1),
+                                       new Vector2(0.5f, 0.5f), ppu, 0, SpriteMeshType.FullRect);
+        recorte.name = original.name + " (sticker)";
+        recortes[original] = recorte;
+        return recorte;
+    }
 
     public float Inestabilidad => inestabilidad;
     public float Masa => masa;
@@ -220,8 +268,7 @@ public class Objeto : MonoBehaviour
 
     public bool DesbloquearEnColeccion()
     {
-        if (ColeccionManager.Instance == null) return false;
-
-        return ColeccionManager.Instance.DesbloquearObjeto(IdColeccion);
+        // No hace falta un ColeccionManager en la escena: el progreso se guarda en PlayerPrefs
+        return ColeccionManager.Desbloquear(IdColeccion);
     }
 }

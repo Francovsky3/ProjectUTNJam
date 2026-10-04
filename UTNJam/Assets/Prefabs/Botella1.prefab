@@ -69,6 +69,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d97c78eb237ce4eb603b726a22ed49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Objeto
+  nombreColeccion: Botella
   inestabilidad: 3.5
   masa: 0.6
   apareceDesdeGrupo: 1

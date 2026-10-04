@@ -67,6 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60d97c78eb237ce4eb603b726a22ed49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Objeto
+  nombreColeccion: Dado
   inestabilidad: 1
   masa: 0.8
   apareceDesdeGrupo: 0
