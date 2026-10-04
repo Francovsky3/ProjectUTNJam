@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f2bb69e6e48a6d24ba988d6ab6679b77
+guid: 6c26abfb64728ff60a1bd5d6e69acdfc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6684710863128507602
-    second: logo003_0
+      213: -521142588401975202
+    second: logo 03_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: logo003_0
+      name: logo 03_0
       rect:
         serializedVersion: 2
         x: 457
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2d438f6ec1dd4cc50800000000000000
-      internalID: 6684710863128507602
+      spriteID: e5009f4b39784c8f0800000000000000
+      internalID: -521142588401975202
       vertices: []
       indices: 
       edges: []

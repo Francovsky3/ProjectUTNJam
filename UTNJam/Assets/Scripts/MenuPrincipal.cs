@@ -1,16 +1,10 @@
-using System;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 // Menú principal: el botón Jugar lleva a la escena del juego
 public class MenuPrincipal : MonoBehaviour
 {
-
-    [SerializeField] string escenaJuego = "prototipo";
-    
-
     [SerializeField] private Animator albumAnimator;
+    [SerializeField] Animator logoAnimator;
 
     public void OpenAlbum()
     {
@@ -24,6 +18,6 @@ public class MenuPrincipal : MonoBehaviour
 
     public void Jugar()
     {
-        Escenas.Cargar(escenaJuego);
+        logoAnimator.SetBool("playAnim", true);
     }
 }
