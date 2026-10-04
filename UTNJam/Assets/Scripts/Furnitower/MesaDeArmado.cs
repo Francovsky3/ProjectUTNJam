@@ -6,8 +6,6 @@ using UnityEngine.InputSystem;
 // Está en su propia zona del mundo; la cámara viene acá para armar y va a la torre para soltar.
 public class MesaDeArmado : MonoBehaviour
 {
-    AudioManager audioManager;
-
     [Header("Objetos")]
     [Tooltip("Todos los objetos posibles. Cada uno define en su componente Objeto desde qué grupo aparece.")]
     [SerializeField] List<GameObject> prefabs;
@@ -68,11 +66,6 @@ public class MesaDeArmado : MonoBehaviour
     public bool GrupoListo => grupo.Count >= minPorGrupo && agarrado == null;
     public bool Arrastrando => agarrado != null;
     public bool QuedanObjetosSuficientes => enMesa.Count >= minPorGrupo;
-
-    private void Awake()
-    {
-        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
-    }
 
     public float InestabilidadGrupo
     {
@@ -278,7 +271,7 @@ public class MesaDeArmado : MonoBehaviour
         arrastreValido = !SuperponeAlGrupo();
         ultimaPosValida = o.transform.position;
 
-        audioManager.PlaySFX(audioManager.pickUp);
+        AudioManager.ReproducirSFX(a => a.pickUp);
     }
 
     // ---------- Choques entre el objeto arrastrado y los del grupo ----------
@@ -407,7 +400,7 @@ public class MesaDeArmado : MonoBehaviour
         if (!grupo.Contains(o))
             juego.Avisar("Tiene que tocar al grupo");
         else
-            audioManager.PlaySFX(audioManager.bind);
+            AudioManager.ReproducirSFX(a => a.bind);
     }
 
     // Click derecho: el objeto vuelve a la bandeja

@@ -64,6 +64,11 @@ public class JuegoFurnitower : MonoBehaviour
     const string NombreTextoGrupos = "texto victoria 2";
     string plantillaGrupos;
 
+    [Header("Música de fin")]
+    [SerializeField] AudioClip musicaVictoria;
+    [SerializeField] AudioClip musicaDerrota;
+    AudioClip musicaDeJuego;   // la que sonaba antes del fin, para volver a ella al rehacer
+
     [Header("Colores")]
     [SerializeField] Color colorJarron = new Color(1f, 0.8f, 0.2f, 0.8f);
     [SerializeField] Color colorGuia = new Color(1f, 1f, 1f, 0.35f);
@@ -286,6 +291,14 @@ public class JuegoFurnitower : MonoBehaviour
         motivoFin = motivo;
         estado = Estado.Fin;
 
+        AudioManager audio = AudioManager.Instance;
+        if (audio != null)
+        {
+            musicaDeJuego = audio.MusicaActual;
+            // Suena una sola vez y después vuelve la música del juego
+            audio.PlayMusicUnaVez(gano ? musicaVictoria : musicaDerrota, musicaDeJuego);
+        }
+
         if (gano && panelVictoria != null)
         {
             panelVictoria.SetActive(true);
@@ -327,6 +340,9 @@ public class JuegoFurnitower : MonoBehaviour
         mesa.DevolverGrupo(ultimoGrupo);
         ultimoGrupo = null;
         if (panelFin != null) panelFin.SetActive(false);
+
+        if (AudioManager.Instance != null && musicaDeJuego != null)
+            AudioManager.Instance.PlayMusic(musicaDeJuego);
 
         Avisar("Corregí el grupo y volvé a soltarlo");
         estado = Estado.Armado;
@@ -400,7 +416,11 @@ public class JuegoFurnitower : MonoBehaviour
         if (botonVisible)
         {
             GUI.enabled = mesa.GrupoListo;
-            if (GUI.Button(rectBoton, "Soltar grupo [Espacio]", estiloBoton)) Lanzar();
+            if (GUI.Button(rectBoton, "Soltar grupo [Espacio]", estiloBoton))
+            {
+                AudioManager.ReproducirSFX(a => a.uiButton);
+                Lanzar();
+            }
             GUI.enabled = true;
         }
 
