@@ -10,6 +10,21 @@ public class MenuPrincipal : MonoBehaviour
     [SerializeField] Animator creditsAnimator;
     [SerializeField] Animator logoAnimator;
 
+    void Start()
+    {
+        // En el panel de créditos los textos están por encima del botón Cerrar y se quedaban con el click:
+        // los textos e imágenes que no son parte de un botón dejan de recibir clicks (el fondo del panel queda igual)
+        if (creditsAnimator != null)
+        {
+            foreach (UnityEngine.UI.Graphic grafico in creditsAnimator.GetComponentsInChildren<UnityEngine.UI.Graphic>(true))
+            {
+                if (grafico.gameObject != creditsAnimator.gameObject &&
+                    grafico.GetComponentInParent<UnityEngine.UI.Button>(true) == null)
+                    grafico.raycastTarget = false;
+            }
+        }
+    }
+
     public void OpenAlbum()
     {
         albumAnimator.GetComponent<Animator>().SetBool("IsOpen", true);

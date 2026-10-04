@@ -2348,7 +2348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7622ec0c34a7d124ca9b033af0189df7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneChange
-  escenaJuego: prototipo
+  escenaJuego: Instrucciones
   comoJugar: {fileID: 6075809997678747005, guid: 0129105393432404ab45cdce9c4884fe, type: 3}
   segundosMinimos: 0.5
 --- !u!95 &1359780284
