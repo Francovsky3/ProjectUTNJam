@@ -35,9 +35,9 @@ public class MesaDeArmado : MonoBehaviour
     [SerializeField] Vector2 centroZona = new Vector2(0f, -1.75f);
     [SerializeField] Vector2 tamañoZona = new Vector2(8f, 5.2f);
     [Tooltip("Altura de la cinta: los objetos de la bandeja se apoyan con su base en esta Y")]
-    [SerializeField] float alturaBandeja = 3.1f;
+    [SerializeField] float alturaBandeja = 2.1f;
     [SerializeField] float centroBandejaX = 0.7f;
-    [SerializeField] float separacionLugares = 2.6f;
+    [SerializeField] float separacionLugares = 3f;
 
     [Header("Colores")]
     [SerializeField] Color colorZona = new Color(1f, 1f, 1f, 0.15f);
@@ -278,7 +278,7 @@ public class MesaDeArmado : MonoBehaviour
         arrastreValido = !SuperponeAlGrupo();
         ultimaPosValida = o.transform.position;
 
-        audioManager.PlaySFX(audioManager.pickUp);
+        //audioManager.PlaySFX(audioManager.pickUp);
     }
 
     // ---------- Choques entre el objeto arrastrado y los del grupo ----------
@@ -406,8 +406,8 @@ public class MesaDeArmado : MonoBehaviour
         Reagrupar(o);
         if (!grupo.Contains(o))
             juego.Avisar("Tiene que tocar al grupo");
-        else
-            audioManager.PlaySFX(audioManager.bind);
+        //else
+            //audioManager.PlaySFX(audioManager.bind);
     }
 
     // Click derecho: el objeto vuelve a la bandeja
