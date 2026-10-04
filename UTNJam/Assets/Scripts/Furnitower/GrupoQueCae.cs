@@ -5,6 +5,7 @@ using UnityEngine;
 // al soltarlo cae con un único Rigidbody, se asienta unos segundos y se congela.
 public class GrupoQueCae : MonoBehaviour
 {
+    AudioManager audioManager;
     public enum Fase { Apuntando, Cayendo, Asentado }
 
     const float TiempoMaximoCayendo = 8f;
@@ -30,6 +31,11 @@ public class GrupoQueCae : MonoBehaviour
 
     bool tocoAlgo;
     float tiempoCayendo, tiempoDesdeContacto, tiempoSinMoverse;
+
+    void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
 
     public void Preparar(List<Objeto> objetos)
     {
@@ -88,7 +94,7 @@ public class GrupoQueCae : MonoBehaviour
 
         Estado = Fase.Cayendo;
 
-        AudioManager.ReproducirSFX(a => a.release);
+        audioManager.PlaySFX(audioManager.release);
     }
 
     void FixedUpdate()
@@ -124,7 +130,7 @@ public class GrupoQueCae : MonoBehaviour
         if (Estado != Fase.Cayendo) return;
         tocoAlgo = true;
 
-        AudioManager.ReproducirSFX(a => a.fall);
+        audioManager.PlaySFX(audioManager.fall);
 
         // Tocar el piso solo está permitido para el primer grupo
         if (!esElPrimero && (collision.collider == suelo || collision.collider.CompareTag("Ground")))

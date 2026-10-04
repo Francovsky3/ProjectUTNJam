@@ -118,7 +118,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2103992537482951632}
   - component: {fileID: 1117088508740539963}
-  - component: {fileID: 8956242932586902538}
   - component: {fileID: 481516234200000008}
   - component: {fileID: 7028944370916698817}
   m_Layer: 0
@@ -138,7 +137,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.5227, y: -4.9257, z: 0}
-  m_LocalScale: {x: 0.67, y: 0.67, z: 0.67}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2964034642480693660}
@@ -169,33 +168,6 @@ CapsuleCollider:
   m_Height: 0.3889165
   m_Direction: 0
   m_Center: {x: -0.028312087, y: -0.16369796, z: 0}
---- !u!54 &8956242932586902538
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3299348238403660291}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &481516234200000008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,6 +182,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Objeto
   inestabilidad: 4
   masa: 1.2
+  idColeccion: 
+  sticker: {fileID: 0}
+  nombreColeccion: 
   apareceDesdeGrupo: 2
   dejaDeAparecerEnGrupo: 0
 --- !u!212 &7028944370916698817

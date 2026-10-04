@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f2bb69e6e48a6d24ba988d6ab6679b77
+guid: 2d632a187066fb879966b263f34aa101
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6684710863128507602
-    second: logo003_0
+      213: 4108359139230092906
+    second: albumcitoNew_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: logo003_0
+      name: albumcitoNew_0
       rect:
         serializedVersion: 2
-        x: 457
-        y: 485
-        width: 950
-        height: 431
+        x: 33
+        y: 9
+        width: 734
+        height: 591
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2d438f6ec1dd4cc50800000000000000
-      internalID: 6684710863128507602
+      spriteID: a6e0a8fbed2d30930800000000000000
+      internalID: 4108359139230092906
       vertices: []
       indices: 
       edges: []
