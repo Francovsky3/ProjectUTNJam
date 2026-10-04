@@ -207,6 +207,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac2592a2b763aba0f8eee4aa529c461f, type: 3}
   m_Name: 
+<<<<<<< Updated upstream
   m_EditorClassIdentifier: Assembly-CSharp::Apilable
   timerMax: 3
   isGrounded: 0
+=======
+  m_EditorClassIdentifier: Assembly-CSharp::Objeto
+  inestabilidad: 2
+  masa: 1.5
+  idColeccion: silla
+  sticker: {fileID: 21300000, guid: 58ae10b165e60e5a4a898b9d1420cfa6, type: 3}
+  nombreColeccion: Silla
+  apareceDesdeGrupo: 0
+  dejaDeAparecerEnGrupo: 0
+>>>>>>> Stashed changes

@@ -157,4 +157,27 @@ CapsuleCollider:
   m_Radius: 0.39562982
   m_Height: 1.2101443
   m_Direction: 0
+<<<<<<< Updated upstream
   m_Center: {x: 0.014657736, y: -0.023172438, z: 0}
+=======
+  m_Center: {x: -0.0071065724, y: -0.07539524, z: 0}
+--- !u!114 &481516234200000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6103081773231622144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60d97c78eb237ce4eb603b726a22ed49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Objeto
+  inestabilidad: 4
+  masa: 1
+  idColeccion: caballito
+  sticker: {fileID: 21300000, guid: d08ddefccb4a59fc28307152e7da1925, type: 3}
+  nombreColeccion: Caballito mecedor
+  apareceDesdeGrupo: 1
+  dejaDeAparecerEnGrupo: 0
+>>>>>>> Stashed changes
