@@ -1939,6 +1939,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 958ea49df77a215478d81c7ec3fd935b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MesaDeArmado
+  audioManager: {fileID: 1194805738}
   prefabs:
   - {fileID: 9122955704712466465, guid: ce72d229ca2973ee9b29df00dcb6b76e, type: 3}
   - {fileID: 1571058050139829404, guid: 67ead114ccbf7218d84a21ab1d2aa367, type: 3}

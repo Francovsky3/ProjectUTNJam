@@ -32,10 +32,11 @@ public class GrupoQueCae : MonoBehaviour
     bool tocoAlgo;
     float tiempoCayendo, tiempoDesdeContacto, tiempoSinMoverse;
 
-    private void Awake()
+    void Awake()
     {
-        //audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
+
     public void Preparar(List<Objeto> objetos)
     {
         Objetos = objetos;
@@ -93,7 +94,7 @@ public class GrupoQueCae : MonoBehaviour
 
         Estado = Fase.Cayendo;
 
-        //audioManager.PlaySFX(audioManager.release);
+        audioManager.PlaySFX(audioManager.release);
     }
 
     void FixedUpdate()
@@ -129,7 +130,7 @@ public class GrupoQueCae : MonoBehaviour
         if (Estado != Fase.Cayendo) return;
         tocoAlgo = true;
 
-        //audioManager.PlaySFX(audioManager.fall);
+        audioManager.PlaySFX(audioManager.fall);
 
         // Tocar el piso solo está permitido para el primer grupo
         if (!esElPrimero && (collision.collider == suelo || collision.collider.CompareTag("Ground")))

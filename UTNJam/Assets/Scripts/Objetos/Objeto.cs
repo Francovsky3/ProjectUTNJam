@@ -9,12 +9,20 @@ public class Objeto : MonoBehaviour
     [Tooltip("Peso del objeto: define hacia dónde se vuelca el grupo. 0 = usar la masa del Rigidbody del prefab")]
     [SerializeField] float masa = 0f;
 
-    
+    [Header("Coleccion")]
+    [SerializeField] private string idColeccion;
+    [SerializeField] private Sprite sticker;
+    [SerializeField] private string nombreColeccion;
+
     [Header("Aparición")]
     [Tooltip("Cantidad de grupos ya colocados en la torre a partir de la cual empieza a aparecer (0 = desde el principio)")]
     [SerializeField] int apareceDesdeGrupo = 0;
     [Tooltip("Deja de aparecer cuando la torre llega a esta cantidad de grupos (0 = nunca deja de aparecer)")]
     [SerializeField] int dejaDeAparecerEnGrupo = 0;
+
+    public string IdColeccion => idColeccion;
+    public Sprite Sticker => sticker;
+    public string NombreColeccion => nombreColeccion;
 
     public float Inestabilidad => inestabilidad;
     public float Masa => masa;
@@ -189,5 +197,12 @@ public class Objeto : MonoBehaviour
                 Bounds b = c.bounds;
                 return Physics.OverlapBox(b.center, b.extents + Vector3.one * margen);
         }
+    }
+
+    public bool DesbloquearEnColeccion()
+    {
+        if (ColeccionManager.Instance == null) return false;
+
+        return ColeccionManager.Instance.DesbloquearObjeto(IdColeccion);
     }
 }
