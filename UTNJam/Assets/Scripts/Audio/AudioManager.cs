@@ -9,6 +9,14 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioSource sfxSource;
 
+    [Header("---------- Audio Clip ----------")]
+    public AudioClip pickUp;
+    public AudioClip bind;
+    public AudioClip release;
+    public AudioClip fall;
+    public AudioClip uiButton;
+    public AudioClip acept;
+
     [Header("---------- Fade Settings ----------")]
     [SerializeField] private float fadeDuration;
 
@@ -44,7 +52,6 @@ public class AudioManager : MonoBehaviour
 
     private IEnumerator FadeMusic(AudioClip newClip)
     {
-        // Fade out (si ya hay algo sonando)
         if (musicSource.isPlaying)
         {
             float startVolume = musicSource.volume;
@@ -60,11 +67,9 @@ public class AudioManager : MonoBehaviour
             musicSource.volume = 0f;
         }
 
-        // Cambia el clip
         musicSource.clip = newClip;
         musicSource.Play();
 
-        // Fade in
         float t2 = 0f;
         while (t2 < fadeDuration)
         {
