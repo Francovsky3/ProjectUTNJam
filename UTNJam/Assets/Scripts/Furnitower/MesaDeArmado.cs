@@ -79,6 +79,10 @@ public class MesaDeArmado : MonoBehaviour
         }
     }
 
+    void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
     public void Iniciar(Vector2 centro, Camera camara, JuegoFurnitower juego)
     {
         cam = camara;
