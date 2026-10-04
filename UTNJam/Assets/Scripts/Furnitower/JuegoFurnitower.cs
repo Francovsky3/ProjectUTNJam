@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -10,7 +11,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(MesaDeArmado))]
 public class JuegoFurnitower : MonoBehaviour
 {
-    enum Estado { Armado, Apuntando, Cayendo, Viendo, Fin }
+    enum Estado { Intro, Armado, Apuntando, Cayendo, Viendo, Fin }
 
     [Header("Escena (si se dejan vacíos se buscan solos)")]
     [SerializeField] Camera cam;
@@ -25,6 +26,8 @@ public class JuegoFurnitower : MonoBehaviour
     [Tooltip("Altura del jarrón medida desde el piso")]
     [SerializeField] float alturaJarron = 7f;
     [SerializeField] float estabilidadInicial = 100f;
+    [Tooltip("Dibuja una línea amarilla a la altura del objetivo (el fondo ya muestra el jarrón)")]
+    [SerializeField] bool mostrarLineaObjetivo = false;
 
     [Header("Costo de estabilidad por grupo")]
     [Tooltip("Cuánto pesa la inclinación con la que queda el grupo (45° = +1 x peso)")]
@@ -48,6 +51,19 @@ public class JuegoFurnitower : MonoBehaviour
     [Tooltip("Segundos que se queda mirando la torre después de que el grupo se asienta")]
     [SerializeField] float pausaTrasCaer = 0.8f;
 
+    [Header("Intro (paneo al empezar)")]
+    [Tooltip("Al empezar, la cámara arranca mirando el jarrón (el objetivo), baja hasta el piso y después va a la mesa. Un click la saltea.")]
+    [SerializeField] bool mostrarIntro = true;
+    [Tooltip("Segundos mirando el jarrón antes de bajar")]
+    [SerializeField] float introEsperaArriba = 2f;
+    [Tooltip("Segundos que tarda en bajar desde el jarrón hasta el piso")]
+    [SerializeField] float introDuracionBajada = 6f;
+    [Tooltip("Al empezar, cuánto más arriba de la línea del objetivo se centra la cámara (para ver el jarrón entero)")]
+    [SerializeField] float introCentroSobreObjetivo = 0.75f;
+    [Tooltip("Segundos mirando el piso antes de ir a la mesa")]
+    [SerializeField] float introEsperaAbajo = 0.7f;
+    Coroutine intro;
+
     [Header("Pantalla de fin (UI de la escena)")]
     [Tooltip("Panel que aparece al ganar o perder. Si queda vacío se usa un panel dibujado por código.")]
     [SerializeField] GameObject panelFin;
@@ -69,6 +85,24 @@ public class JuegoFurnitower : MonoBehaviour
     [SerializeField] AudioClip musicaDerrota;
     AudioClip musicaDeJuego;   // la que sonaba antes del fin, para volver a ella al rehacer
 
+    [Header("Fondos de fin")]
+    [Tooltip("Ilustración a pantalla completa al ganar. Después de unos segundos, o con un click, aparece encima el panel de victoria")]
+    [SerializeField] Sprite fondoVictoria;
+    [Tooltip("Ilustración a pantalla completa al perder. Después de unos segundos, o con un click, aparece encima el panel de derrota")]
+    [SerializeField] Sprite fondoDerrota;
+    [SerializeField] float segundosFondoFin = 3f;
+    [Tooltip("Al ganar: imagen que aparece flotando sobre la ilustración, en la misma posición que tiene dentro de su lienzo")]
+    [SerializeField] Sprite textoGanaste;
+    [Tooltip("Al ganar: segundos hasta que un click vuelve al menú principal")]
+    [SerializeField] float segundosAntesDeVolver = 2f;
+    [SerializeField] string escenaMenu = "Menu";
+    Image imagenFondoFin;
+    Image imagenTextoGanaste;
+    float momentoFin;
+    AspectRatioFitter ajusteFondoFin;
+    Coroutine esperaPanelFin;
+    bool panelFinMostrado;
+
     [Header("Colores")]
     [SerializeField] Color colorJarron = new Color(1f, 0.8f, 0.2f, 0.8f);
     [SerializeField] Color colorGuia = new Color(1f, 1f, 1f, 0.35f);
@@ -83,6 +117,7 @@ public class JuegoFurnitower : MonoBehaviour
     float pisoY, topeTorre, estabilidad;
     Vector2 posArmado;
     Vector3 velocidadCamara;
+    float yMinCamaraTorre = float.NegativeInfinity;   // más abajo se vería el color de fondo de la cámara
     float finPausa;
     bool gano;
     bool puedeRehacer;
@@ -98,7 +133,7 @@ public class JuegoFurnitower : MonoBehaviour
     float escalaGui = 1f;
     Rect rectPanel, rectBoton;
     bool botonVisible;
-    GUIStyle estiloTexto, estiloCentrado, estiloTitulo, estiloMensaje, estiloJarron, estiloBoton;
+    GUIStyle estiloTexto, estiloCentrado, estiloTitulo, estiloMensaje, estiloBoton;
 
     float Altura => topeTorre - pisoY;
 
@@ -107,6 +142,7 @@ public class JuegoFurnitower : MonoBehaviour
         if (panelFin != null) panelFin.SetActive(false);
         BuscarPanelVictoria();
         if (panelVictoria != null) panelVictoria.SetActive(false);
+        CrearFondoFin();
         if (textoGrupos != null) plantillaGrupos = textoGrupos.text;
         if (botonRehacer != null) botonRehacer.onClick.AddListener(RehacerUltimo);
         if (botonReiniciar != null) botonReiniciar.onClick.AddListener(Reiniciar);
@@ -136,12 +172,84 @@ public class JuegoFurnitower : MonoBehaviour
         cam.transform.position = new Vector3(posArmado.x, posArmado.y, cam.transform.position.z);
 
         raizTorre = new GameObject("Torre").transform;
-        Dibujo.Rectangulo(null, "Altura del jarrón", new Vector2(centroTorreX, pisoY + alturaJarron),
-                          new Vector2(rangoApuntado * 2f + 3f, 0.06f), colorJarron, -5);
-        guia = Dibujo.Rectangulo(null, "Guía de caída", Vector2.zero, Vector2.one, colorGuia, -5);
+        if (mostrarLineaObjetivo)
+            Dibujo.Rectangulo(null, "Altura del jarrón", new Vector2(centroTorreX, pisoY + alturaJarron),
+                              new Vector2(rangoApuntado * 2f + 3f, 0.06f), colorJarron, -5);
+        guia =Dibujo.Rectangulo(null, "Guía de caída", Vector2.zero, Vector2.one, colorGuia, -5);
         guia.enabled = false;
 
         mesa.Iniciar(posArmado, cam, this);
+        CalcularLimiteCamaraTorre();
+
+        if (mostrarIntro)
+        {
+            estado = Estado.Intro;
+            intro = StartCoroutine(Intro());
+        }
+        else
+        {
+            estado = Estado.Armado;
+        }
+    }
+
+    // Paneo inicial: muestra el objetivo (la altura del jarrón), baja hasta el piso y después va a la mesa
+    IEnumerator Intro()
+    {
+        float z = cam.transform.position.z;
+        float yArriba = pisoY + alturaJarron + introCentroSobreObjetivo;
+        float yAbajo = Mathf.Max(pisoY + camaraSobrePiso, yMinCamaraTorre);
+
+        cam.transform.position = new Vector3(centroTorreX, yArriba, z);
+        yield return new WaitForSeconds(introEsperaArriba);
+
+        for (float t = 0f; t < introDuracionBajada; t += Time.deltaTime)
+        {
+            float y = Mathf.Lerp(yArriba, yAbajo, Mathf.SmoothStep(0f, 1f, t / introDuracionBajada));
+            cam.transform.position = new Vector3(centroTorreX, y, z);
+            yield return null;
+        }
+        cam.transform.position = new Vector3(centroTorreX, yAbajo, z);
+        yield return new WaitForSeconds(introEsperaAbajo);
+
+        intro = null;
+        TerminarIntro();
+    }
+
+    // Altura mínima de la cámara en la torre para no mostrar debajo de los fondos (sprites cuyo nombre empieza con "Fondo").
+    // Para varios puntos a lo ancho de la pantalla busca el fondo más bajo que cubre ese punto,
+    // y se queda con el borde más alto de esos, así no queda ningún hueco abajo.
+    void CalcularLimiteCamaraTorre()
+    {
+        List<Bounds> fondos = new List<Bounds>();
+        foreach (SpriteRenderer sr in FindObjectsByType<SpriteRenderer>(FindObjectsInactive.Exclude))
+            if (sr.enabled && sr.sprite != null && sr.name.StartsWith("Fondo")) fondos.Add(sr.bounds);
+        if (fondos.Count == 0) return;
+
+        float mitadAncho = cam.orthographicSize * cam.aspect;
+        float bordeInferior = float.NegativeInfinity;
+        const int muestras = 9;
+        for (int i = 0; i < muestras; i++)
+        {
+            float x = centroTorreX - mitadAncho + 2f * mitadAncho * i / (muestras - 1);
+            float masBajo = float.PositiveInfinity;
+            foreach (Bounds b in fondos)
+                if (x >= b.min.x && x <= b.max.x) masBajo = Mathf.Min(masBajo, b.min.y);
+            if (!float.IsPositiveInfinity(masBajo)) bordeInferior = Mathf.Max(bordeInferior, masBajo);
+        }
+        if (!float.IsNegativeInfinity(bordeInferior))
+            yMinCamaraTorre = bordeInferior + cam.orthographicSize;
+    }
+
+    // Termina la intro (o la saltea): la cámara va a la mesa y empieza el juego
+    void TerminarIntro()
+    {
+        if (estado != Estado.Intro) return;
+        if (intro != null)
+        {
+            StopCoroutine(intro);
+            intro = null;
+        }
+        velocidadCamara = Vector3.zero;
         estado = Estado.Armado;
     }
 
@@ -160,9 +268,19 @@ public class JuegoFurnitower : MonoBehaviour
                 return;
             }
         }
+        else
+        {
+            restartTimer = 0f;   // hay que mantener la R apretada sin soltarla
+        }
 
         switch (estado)
         {
+            case Estado.Intro:
+                bool saltear = (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) ||
+                               (kb != null && (kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame));
+                if (saltear) TerminarIntro();
+                break;
+
             case Estado.Armado:
                 mesa.Actualizar();
                 if (kb != null && kb.spaceKey.wasPressedThisFrame) Lanzar();
@@ -181,7 +299,8 @@ public class JuegoFurnitower : MonoBehaviour
                 break;
         }
 
-        MoverCamara();
+        // Durante la intro la cámara la mueve el paneo
+        if (estado != Estado.Intro) MoverCamara();
     }
 
     void Lanzar()
@@ -299,6 +418,54 @@ public class JuegoFurnitower : MonoBehaviour
             audio.PlayMusicUnaVez(gano ? musicaVictoria : musicaDerrota, musicaDeJuego);
         }
 
+        // Primero la ilustración de victoria o derrota.
+        // Al ganar: el texto "ganaste" flota arriba y, pasados unos segundos, un click vuelve al menú.
+        // Al perder: el panel de derrota aparece después de unos segundos o con un click.
+        panelFinMostrado = false;
+        momentoFin = Time.time;
+        Sprite fondo = gano ? fondoVictoria : fondoDerrota;
+        if (imagenFondoFin != null && fondo != null)
+        {
+            imagenFondoFin.sprite = fondo;
+            ajusteFondoFin.aspectRatio = fondo.rect.width / fondo.rect.height;
+            imagenFondoFin.gameObject.SetActive(true);
+            if (imagenTextoGanaste != null) imagenTextoGanaste.gameObject.SetActive(gano);
+            if (!gano) esperaPanelFin = StartCoroutine(MostrarPanelFinTrasEspera());
+        }
+        else
+        {
+            MostrarPanelFin();
+        }
+    }
+
+    // Click sobre la ilustración de fin
+    void AlTocarFondoFin()
+    {
+        if (estado != Estado.Fin) return;
+        if (!gano)
+            MostrarPanelFin();
+        else if (Time.time - momentoFin >= segundosAntesDeVolver)
+            Escenas.Cargar(escenaMenu);
+    }
+
+    IEnumerator MostrarPanelFinTrasEspera()
+    {
+        yield return new WaitForSeconds(segundosFondoFin);
+        esperaPanelFin = null;
+        MostrarPanelFin();
+    }
+
+    // Muestra el panel de victoria o derrota (encima de la ilustración, si la hay). Se llama una sola vez por fin.
+    void MostrarPanelFin()
+    {
+        if (estado != Estado.Fin || panelFinMostrado) return;
+        panelFinMostrado = true;
+        if (esperaPanelFin != null)
+        {
+            StopCoroutine(esperaPanelFin);
+            esperaPanelFin = null;
+        }
+
         if (gano && panelVictoria != null)
         {
             panelVictoria.SetActive(true);
@@ -311,6 +478,64 @@ public class JuegoFurnitower : MonoBehaviour
             panelFin.SetActive(true);
             if (botonRehacer != null) botonRehacer.gameObject.SetActive(!gano && puedeRehacer);
         }
+    }
+
+    // Imagen a pantalla completa para las ilustraciones de victoria y derrota, justo detrás de los paneles de fin.
+    // Cubre toda la pantalla sin deformarse (puede recortar un poco los bordes) y un click en ella adelanta el panel.
+    void CrearFondoFin()
+    {
+        if (fondoVictoria == null && fondoDerrota == null) return;
+        GameObject referencia = panelFin != null ? panelFin : panelVictoria;
+        if (referencia == null || referencia.transform.parent == null) return;
+
+        GameObject go = new GameObject("Fondo fin", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter), typeof(Button));
+        RectTransform rt = (RectTransform)go.transform;
+        rt.SetParent(referencia.transform.parent, false);
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+
+        int indice = referencia.transform.GetSiblingIndex();
+        if (panelFin != null) indice = Mathf.Min(indice, panelFin.transform.GetSiblingIndex());
+        if (panelVictoria != null) indice = Mathf.Min(indice, panelVictoria.transform.GetSiblingIndex());
+        rt.SetSiblingIndex(indice);
+
+        imagenFondoFin = go.GetComponent<Image>();
+        ajusteFondoFin = go.GetComponent<AspectRatioFitter>();
+        ajusteFondoFin.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+
+        Button boton = go.GetComponent<Button>();
+        boton.transition = Selectable.Transition.None;
+        boton.navigation = new Navigation { mode = Navigation.Mode.None };
+        boton.onClick.AddListener(AlTocarFondoFin);
+
+        go.SetActive(false);
+
+        if (textoGanaste != null) CrearTextoGanaste(rt);
+    }
+
+    // El texto "ganaste" va justo encima de la ilustración. Ocupa en la pantalla la misma porción que ocupa
+    // dentro de su lienzo, así queda donde lo dibujó el artista en cualquier resolución, y flota.
+    void CrearTextoGanaste(RectTransform fondo)
+    {
+        GameObject go = new GameObject("Texto ganaste", typeof(RectTransform), typeof(Image));
+        RectTransform rt = (RectTransform)go.transform;
+        rt.SetParent(fondo.parent, false);
+        rt.SetSiblingIndex(fondo.GetSiblingIndex() + 1);
+
+        Rect r = textoGanaste.rect;
+        float ancho = textoGanaste.texture.width, alto = textoGanaste.texture.height;
+        rt.anchorMin = new Vector2(r.xMin / ancho, r.yMin / alto);
+        rt.anchorMax = new Vector2(r.xMax / ancho, r.yMax / alto);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+
+        imagenTextoGanaste = go.GetComponent<Image>();
+        imagenTextoGanaste.sprite = textoGanaste;
+        imagenTextoGanaste.preserveAspect = true;
+        imagenTextoGanaste.raycastTarget = false;   // los clicks pasan a la ilustración
+
+        go.AddComponent<Flotar>();   // toma como centro la posición recién puesta
+        go.SetActive(false);
     }
 
     // Si no se asignaron en el Inspector, se buscan por nombre en el Canvas (al lado del panel de derrota)
@@ -340,6 +565,13 @@ public class JuegoFurnitower : MonoBehaviour
         mesa.DevolverGrupo(ultimoGrupo);
         ultimoGrupo = null;
         if (panelFin != null) panelFin.SetActive(false);
+        if (esperaPanelFin != null)
+        {
+            StopCoroutine(esperaPanelFin);
+            esperaPanelFin = null;
+        }
+        if (imagenFondoFin != null) imagenFondoFin.gameObject.SetActive(false);
+        if (imagenTextoGanaste != null) imagenTextoGanaste.gameObject.SetActive(false);
 
         if (AudioManager.Instance != null && musicaDeJuego != null)
             AudioManager.Instance.PlayMusic(musicaDeJuego);
@@ -353,7 +585,7 @@ public class JuegoFurnitower : MonoBehaviour
     {
         Vector2 objetivo = estado == Estado.Armado
             ? posArmado
-            : new Vector2(centroTorreX, Mathf.Max(pisoY + camaraSobrePiso, topeTorre + camaraSobreTope));
+            : new Vector2(centroTorreX, Mathf.Max(pisoY + camaraSobrePiso, topeTorre + camaraSobreTope, yMinCamaraTorre));
 
         Vector3 p = cam.transform.position;
         Vector3 destino = new Vector3(objetivo.x, objetivo.y, p.z);
@@ -393,10 +625,21 @@ public class JuegoFurnitower : MonoBehaviour
     {
         if (cam == null || mesa == null) return;
 
+        // En la pantalla de fin se ven la ilustración y los paneles de la escena: el HUD no se dibuja encima
+        bool hayPanelUI = gano ? panelVictoria != null || panelFin != null : panelFin != null;
+        if (estado == Estado.Fin && hayPanelUI) return;
+
         escalaGui = Screen.height / 720f;
         GUI.matrix = Matrix4x4.Scale(new Vector3(escalaGui, escalaGui, 1f));
         float ancho = Screen.width / escalaGui;
         CrearEstilos();
+
+        // Durante la intro el HUD no se muestra: solo el aviso para saltearla
+        if (estado == Estado.Intro)
+        {
+            GUI.Label(new Rect(0, 720 - 40, ancho, 30), "Click para saltear", estiloCentrado);
+            return;
+        }
 
         // En la pantalla de armado el panel va abajo a la izquierda (arriba está la cinta);
         // en la torre va arriba a la izquierda
@@ -424,10 +667,6 @@ public class JuegoFurnitower : MonoBehaviour
             GUI.enabled = true;
         }
 
-        Vector3 jarron = cam.WorldToScreenPoint(new Vector3(centroTorreX + rangoApuntado + 1.5f, pisoY + alturaJarron, 0f));
-        GUI.Label(new Rect(jarron.x / escalaGui - 220, (Screen.height - jarron.y) / escalaGui - 26, 220, 24),
-                  "Jarrón de galletitas", estiloJarron);
-
         Rect tira = new Rect(0, 720 - altoTira, ancho, altoTira);
         GUI.Box(tira, GUIContent.none);
         GUI.Label(tira, Instrucciones(), estiloCentrado);
@@ -435,8 +674,7 @@ public class JuegoFurnitower : MonoBehaviour
         if (Time.time < mensajeHasta)
             GUI.Label(new Rect(0, 720 - altoTira - 38, ancho, 32), mensaje, estiloMensaje);
 
-        bool hayPanelUI = gano ? panelVictoria != null || panelFin != null : panelFin != null;
-        if (estado == Estado.Fin && !hayPanelUI)
+        if (estado == Estado.Fin)
             DibujarPanelFin(ancho);
     }
 
@@ -498,8 +736,6 @@ public class JuegoFurnitower : MonoBehaviour
         estiloTitulo = new GUIStyle(estiloCentrado) { fontSize = 34, fontStyle = FontStyle.Bold };
         estiloMensaje = new GUIStyle(estiloCentrado) { fontSize = 20, fontStyle = FontStyle.Bold };
         estiloMensaje.normal.textColor = new Color(1f, 0.85f, 0.3f);
-        estiloJarron = new GUIStyle(estiloTexto) { alignment = TextAnchor.LowerRight, fontStyle = FontStyle.Bold };
-        estiloJarron.normal.textColor = new Color(colorJarron.r, colorJarron.g, colorJarron.b, 1f);
         estiloBoton = new GUIStyle(GUI.skin.button) { fontSize = 15 };
     }
 

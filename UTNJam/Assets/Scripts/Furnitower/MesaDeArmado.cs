@@ -6,8 +6,6 @@ using UnityEngine.InputSystem;
 // Está en su propia zona del mundo; la cámara viene acá para armar y va a la torre para soltar.
 public class MesaDeArmado : MonoBehaviour
 {
-    [SerializeField] AudioManager audioManager;
-
     [Header("Objetos")]
     [Tooltip("Todos los objetos posibles. Cada uno define en su componente Objeto desde qué grupo aparece.")]
     [SerializeField] List<GameObject> prefabs;
@@ -34,10 +32,12 @@ public class MesaDeArmado : MonoBehaviour
     [Header("Ubicación (relativa al punto de armado, con la cámara de tamaño 5)")]
     [SerializeField] Vector2 centroZona = new Vector2(0f, -1.75f);
     [SerializeField] Vector2 tamañoZona = new Vector2(8f, 5.2f);
-    [Tooltip("Altura de la cinta: los objetos de la bandeja se apoyan con su base en esta Y")]
-    [SerializeField] float alturaBandeja = 2.1f;
-    [SerializeField] float centroBandejaX = 0.7f;
-    [SerializeField] float separacionLugares = 3f;
+    [Tooltip("Altura del estante: los objetos se apoyan con la base de su dibujo en esta Y")]
+    [SerializeField] float alturaBandeja = 2.6f;
+    [Tooltip("Espacio libre a cada costado de la pantalla; los lugares del estante se reparten en el resto del ancho")]
+    [SerializeField] float margenBandeja = 0.8f;
+    [Tooltip("Alto máximo de un objeto en el estante; si es más grande se ve achicado hasta que lo agarrás")]
+    [SerializeField] float altoMaxEnBandeja = 2.1f;
 
     [Header("Colores")]
     [SerializeField] Color colorZona = new Color(1f, 1f, 1f, 0.15f);
@@ -180,6 +180,7 @@ public class MesaDeArmado : MonoBehaviour
         if (o == null) o = go.AddComponent<Objeto>();
         o.Lugar = lugar;
         o.Prefab = prefab;
+        o.EscalaReal = go.transform.localScale;
 
         creados++;
         yaSalieron.Add(prefab);
@@ -264,8 +265,13 @@ public class MesaDeArmado : MonoBehaviour
         if (o == null) return;
 
         agarrado = o;
-        offsetAgarre = o.transform.position - puntero;
+
+        // En el estante puede verse achicado: vuelve a su tamaño real manteniendo bajo el mouse el punto agarrado
+        float factor = o.EscalaReal.x != 0f ? o.transform.localScale.x / o.EscalaReal.x : 1f;
+        o.transform.localScale = o.EscalaReal;
+        offsetAgarre = (o.transform.position - puntero) / Mathf.Max(0.1f, factor);
         offsetAgarre.z = 0f;
+        o.transform.position = puntero + offsetAgarre;
         grupo.Remove(o);
         o.Teñir(Color.white);
         o.AlFrente(true);
@@ -273,7 +279,7 @@ public class MesaDeArmado : MonoBehaviour
         arrastreValido = !SuperponeAlGrupo();
         ultimaPosValida = o.transform.position;
 
-        audioManager.PlaySFX(audioManager.pickUp);
+        AudioManager.ReproducirSFX(a => a.pickUp);
     }
 
     // ---------- Choques entre el objeto arrastrado y los del grupo ----------
@@ -402,7 +408,7 @@ public class MesaDeArmado : MonoBehaviour
         if (!grupo.Contains(o))
             juego.Avisar("Tiene que tocar al grupo");
         else
-            audioManager.PlaySFX(audioManager.bind);
+            AudioManager.ReproducirSFX(a => a.bind);
     }
 
     // Click derecho: el objeto vuelve a la bandeja
@@ -462,21 +468,35 @@ public class MesaDeArmado : MonoBehaviour
                Mathf.Abs(local.y - centroZona.y) <= tamañoZona.y / 2f;
     }
 
+    // Los lugares del estante se reparten en el ancho visible de la cámara (menos un margen a cada lado),
+    // así ninguno queda cortado sea cual sea la proporción de la pantalla
+    float AnchoUtilBandeja => Mathf.Max(1f, cam.orthographicSize * cam.aspect * 2f - margenBandeja * 2f);
+    float AnchoLugar => AnchoUtilBandeja / Mathf.Max(1, lugaresEnBandeja);
+
     Vector3 PosicionLugar(int lugar)
     {
-        float x = centroBandejaX + (lugar - (lugaresEnBandeja - 1) / 2f) * separacionLugares;
+        float x = -AnchoUtilBandeja / 2f + (lugar + 0.5f) * AnchoLugar;
         return new Vector3(x, alturaBandeja, 0f);
     }
 
-    // Pone el objeto en su lugar de la cinta: centrado en X y apoyado con su base en la cinta
+    // Pone el objeto en su lugar del estante: centrado en X y apoyado con la base de su dibujo en el estante.
+    // Si no entra en el lugar se ve achicado; al agarrarlo vuelve a su tamaño real.
     void VolverALugar(Objeto o)
     {
         o.transform.SetParent(raiz, false);
-        o.transform.localPosition = PosicionLugar(o.Lugar);
         o.transform.localRotation = o.RotacionInicial;
+        if (o.EscalaReal == Vector3.zero) o.EscalaReal = o.transform.localScale;
+        o.transform.localScale = o.EscalaReal;
 
-        Vector3 destino = raiz.TransformPoint(PosicionLugar(o.Lugar));
         Bounds visual = o.LimitesVisuales();
+        float factor = 1f;
+        if (visual.size.x > 0.01f) factor = Mathf.Min(factor, (AnchoLugar - 0.2f) / visual.size.x);
+        if (visual.size.y > 0.01f) factor = Mathf.Min(factor, altoMaxEnBandeja / visual.size.y);
+        o.transform.localScale = o.EscalaReal * Mathf.Max(0.1f, factor);
+
+        o.transform.localPosition = PosicionLugar(o.Lugar);
+        Vector3 destino = raiz.TransformPoint(PosicionLugar(o.Lugar));
+        visual = o.LimitesVisuales();
         o.transform.position += new Vector3(destino.x - visual.center.x, destino.y - visual.min.y, 0f);
         o.Teñir(Color.white);
     }
