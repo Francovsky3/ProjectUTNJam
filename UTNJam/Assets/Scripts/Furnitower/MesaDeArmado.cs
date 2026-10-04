@@ -278,7 +278,7 @@ public class MesaDeArmado : MonoBehaviour
         arrastreValido = !SuperponeAlGrupo();
         ultimaPosValida = o.transform.position;
 
-        //audioManager.PlaySFX(audioManager.pickUp);
+        audioManager.PlaySFX(audioManager.pickUp);
     }
 
     // ---------- Choques entre el objeto arrastrado y los del grupo ----------
@@ -406,8 +406,8 @@ public class MesaDeArmado : MonoBehaviour
         Reagrupar(o);
         if (!grupo.Contains(o))
             juego.Avisar("Tiene que tocar al grupo");
-        //else
-            //audioManager.PlaySFX(audioManager.bind);
+        else
+            audioManager.PlaySFX(audioManager.bind);
     }
 
     // Click derecho: el objeto vuelve a la bandeja
