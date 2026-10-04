@@ -32,6 +32,7 @@ public class Objeto : MonoBehaviour
     public GameObject Prefab { get; set; }   // de qué prefab salió (para no repetir de más)
     public Collider[] Colliders => colliders;
     public Quaternion RotacionInicial { get; private set; }   // la del prefab (ej. el colchón viene acostado)
+    public Vector3 EscalaReal { get; set; }   // tamaño de juego; en el estante puede verse achicado
 
     public bool PuedeAparecer(int gruposColocados)
     {
@@ -123,14 +124,32 @@ public class Objeto : MonoBehaviour
         return b;
     }
 
-    // Límites del dibujo (no de los colliders); se actualizan al instante al mover el transform
+    // Límites de lo que se ve dibujado (no de los colliders); se actualizan al instante al mover el transform.
+    // En los sprites se usa su silueta (malla "Tight"), así no cuenta el borde transparente de la imagen.
     public Bounds LimitesVisuales()
     {
         Bounds b = new Bounds(transform.position, Vector3.zero);
-        for (int i = 0; i < renderers.Length; i++)
+        bool hay = false;
+        foreach (Renderer r in renderers)
         {
-            if (i == 0) b = renderers[i].bounds;
-            else b.Encapsulate(renderers[i].bounds);
+            if (r == null || !r.enabled || !r.gameObject.activeInHierarchy) continue;
+
+            if (r is SpriteRenderer sr && sr.sprite != null)
+            {
+                Matrix4x4 m = sr.transform.localToWorldMatrix;
+                float fx = sr.flipX ? -1f : 1f, fy = sr.flipY ? -1f : 1f;
+                foreach (Vector2 v in sr.sprite.vertices)
+                {
+                    Vector3 p = m.MultiplyPoint3x4(new Vector3(v.x * fx, v.y * fy, 0f));
+                    if (!hay) { b = new Bounds(p, Vector3.zero); hay = true; }
+                    else b.Encapsulate(p);
+                }
+            }
+            else
+            {
+                if (!hay) { b = r.bounds; hay = true; }
+                else b.Encapsulate(r.bounds);
+            }
         }
         return b;
     }

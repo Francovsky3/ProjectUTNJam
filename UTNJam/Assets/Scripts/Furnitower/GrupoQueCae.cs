@@ -5,7 +5,6 @@ using UnityEngine;
 // al soltarlo cae con un único Rigidbody, se asienta unos segundos y se congela.
 public class GrupoQueCae : MonoBehaviour
 {
-    AudioManager audioManager;
     public enum Fase { Apuntando, Cayendo, Asentado }
 
     const float TiempoMaximoCayendo = 8f;
@@ -31,11 +30,6 @@ public class GrupoQueCae : MonoBehaviour
 
     bool tocoAlgo;
     float tiempoCayendo, tiempoDesdeContacto, tiempoSinMoverse;
-
-    void Awake()
-    {
-        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
-    }
 
     public void Preparar(List<Objeto> objetos)
     {
@@ -81,7 +75,16 @@ public class GrupoQueCae : MonoBehaviour
         foreach (Objeto o in Objetos) masa += o.Masa;
 
         Physics.SyncTransforms();
-        rb = gameObject.AddComponent<Rigidbody>();
+        // Si ya tiene un Rigidbody se reutiliza: AddComponent devuelve null cuando ya hay uno
+        rb = GetComponent<Rigidbody>();
+        if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError($"GrupoQueCae: no se pudo agregar física a '{name}'; el grupo se da por asentado.");
+            Estado = Fase.Asentado;
+            return;
+        }
+        rb.isKinematic = false;
         rb.mass = Mathf.Max(0.1f, masa);
         rb.constraints = RigidbodyConstraints.FreezePositionZ |
                          RigidbodyConstraints.FreezeRotationX |
@@ -94,12 +97,19 @@ public class GrupoQueCae : MonoBehaviour
 
         Estado = Fase.Cayendo;
 
-        audioManager.PlaySFX(audioManager.release);
+        AudioManager.ReproducirSFX(a => a.release);
     }
 
     void FixedUpdate()
     {
         if (Estado != Fase.Cayendo) return;
+
+        // Sin física no puede asentarse: se da por terminado en vez de quedar cayendo para siempre
+        if (rb == null)
+        {
+            Estado = Fase.Asentado;
+            return;
+        }
 
         float dt = Time.fixedDeltaTime;
         tiempoCayendo += dt;
@@ -130,7 +140,7 @@ public class GrupoQueCae : MonoBehaviour
         if (Estado != Fase.Cayendo) return;
         tocoAlgo = true;
 
-        audioManager.PlaySFX(audioManager.fall);
+        AudioManager.ReproducirSFX(a => a.fall);
 
         // Tocar el piso solo está permitido para el primer grupo
         if (!esElPrimero && (collision.collider == suelo || collision.collider.CompareTag("Ground")))

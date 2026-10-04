@@ -548,14 +548,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.8028284, b: 0.43710685, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: a18107d7358b45e4fb80b9bd5364324a, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1823,6 +1823,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7622ec0c34a7d124ca9b033af0189df7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneChange
+  escenaJuego: prototipo
+  comoJugar: {fileID: 6075809997678747005, guid: 0129105393432404ab45cdce9c4884fe, type: 3}
+  segundosMinimos: 0.5
 --- !u!95 &1359780284
 Animator:
   serializedVersion: 7
@@ -2514,6 +2517,14 @@ MonoBehaviour:
   uiButton: {fileID: 8300000, guid: ad316ffba44be624891f7f27038b9276, type: 3}
   acept: {fileID: 8300000, guid: 3369b846a548bc3459a949caceba0d1e, type: 3}
   fadeDuration: 0.5
+  textosBotonesAceptar:
+  - Jugar
+  - Empezar de nuevo
+  - Rehacer ultimo grupo
+  - Continuar
+  - Reintentar
+  - Regresar al principio
+  - Regresar al ultimo grupo
 --- !u!4 &1853909937
 Transform:
   m_ObjectHideFlags: 0
